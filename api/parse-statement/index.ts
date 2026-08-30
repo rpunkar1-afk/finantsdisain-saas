@@ -43,7 +43,10 @@ const SUPPORTED_BANKS = ["nordea", "swedbank", "seb"] as const;
 
 const EXTRACTION_SYSTEM_PROMPT = `Sa oled pangaväljavõtete struktureeritud andmete ekstraheerija.
 Sisend on Eesti panga (Nordea, Swedbank või SEB) kontoväljavõtte toorest PDF-tekstist.
-Tuvasta pank teksti formaadi/päise järgi.
+MÄRKUS: sisend võib olla ainult OSA pikemast dokumendist (üks tükk mitmest, jaotatud tehnilistel põhjustel) —
+ära hoiata "dokument on puudulik" ainult seetõttu, et konto/pangainfo ei kordu igal tükil;
+kui konkreetne tükk ei sisalda päiseinfot (pank, konto, periood), kasuta lihtsalt null nende väljade jaoks.
+Tuvasta pank teksti formaadi/päise järgi, kui see on selles tükis nähtaval.
 
 Tagasta AINULT JSON, ilma preambulita, ilma markdown-koodiplokkideta, täpselt selle skeemi järgi:
 {
