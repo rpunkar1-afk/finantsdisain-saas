@@ -1,0 +1,142 @@
+"use strict";
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// api/knowledgebase/index.ts
+var index_exports = {};
+__export(index_exports, {
+  config: () => config,
+  default: () => handler
+});
+module.exports = __toCommonJS(index_exports);
+
+// api/knowledgebase/data.json
+var data_default = [
+  {
+    id: "bank-statement-reading",
+    title: "Mida pank kontov\xE4ljav\xF5ttelt loeb",
+    category: "financing_basics",
+    summary: "Peamised signaalid, mida laenuandja pangav\xE4ljav\xF5ttest hindamisel otsib.",
+    content: [
+      "Rahavoo regulaarsus: kas sissetulekud saabuvad \xFChtlase intervalliga (kuup\xF5hine, ettearvatav) v\xF5i juhuslikult.",
+      "K\xE4ibe suurus ja trend v\xE4hemalt 6-12 kuu l\xF5ikes \u2014 kasvav, stabiilne v\xF5i langev trend m\xF5jutab riskihinnangut otseselt.",
+      "Debitoorse ja kreditoorse ts\xFCkli tasakaal: kas ettev\xF5te suudab oma kohustusi t\xE4ita ilma pideva \xFClekulu (miinus)ta j\xE4\xE4miseta.",
+      "Ebaregulaarsed suured v\xE4ljamaksed (nt trahvid, viivised, inkasso) \u2014 need on punased lipud, mis viitavad finantsraskustele.",
+      "Sularahak\xE4ibe osakaal \u2014 k\xF5rge sularahak\xE4ive v\xE4hendab j\xE4lgitavust ja tekitab k\xFCsimusi tuluallikate legitiimsuse kohta.",
+      "Kontode arv ja nendevaheline liikumine \u2014 mitme konto vahel ringi liikuv raha v\xF5ib viidata katsele varjata tegelikku finantsseisu.",
+      "Olemasolevate laenumaksete regulaarsus ja j\xE4rjepidevus \u2014 hilinenud maksed on \xFCks tugevamaid negatiivseid signaale.",
+      "Maksuameti (EMTA) otsekorraldused ja maksuv\xF5la m\xE4rked v\xE4ljav\xF5ttel."
+    ]
+  },
+  {
+    id: "ky-bureaucracy-path",
+    title: "K\xDC b\xFCrokraatia tee",
+    category: "ky_process",
+    summary: "Korteri\xFChistu formaalne tee finantseerimisotsusest taotluse esitamiseni.",
+    content: [
+      "1. Juhatuse ettepanek: juhatus koostab investeeringu/renoveerimise ettepaneku koos esialgse eelarvega.",
+      "2. Energiaaudit (soovitatav enne \xFCldkoosolekut): annab objektiivse l\xE4htepunkti ja tugevdab hilisemat taotlust.",
+      "3. \xDCldkoosoleku kokkukutsumine: seaduslik etteteatamist\xE4htaeg, p\xE4evakorra avalikustamine liikmetele.",
+      "4. \xDCldkoosoleku otsus: enamik laenuandjaid ja EIS/KredEx meetmeid eeldavad kvalifitseeritud (2/3) h\xE4\xE4lteenamust suuremate investeeringute puhul; osad v\xE4iksemad otsused piisavad lihth\xE4\xE4lteenamusest.",
+      "5. Tehnilise konsultandi/projekteerija kaasamine: koostatakse tehniline kirjeldus ja t\xE4psem eelarve.",
+      "6. Rahastuse struktureerimine: omafinantseering + toetus (kui kohaldub) + pangalaen/KredEx laen.",
+      "7. Taotluse koostamine ja esitamine: E-toetuse keskkond (EIS meetmete puhul) v\xF5i panga enda taotlusvorm.",
+      "8. Menetlusperiood: KredEx/EIS suuremate meetmete puhul sageli mitu kuud.",
+      "9. Lepingu s\xF5lmimine ja t\xF6\xF6de teostamine: sageli etapiviisiline v\xE4ljamakse vastavalt tehtud t\xF6\xF6de mahule.",
+      "10. Aruandlus: toetuse saanud projektid peavad esitama kuluaruande ja t\xF5endavad dokumendid."
+    ]
+  },
+  {
+    id: "emtak-connections",
+    title: "EMTAK seosed",
+    category: "vke_classification",
+    summary: "Kuidas EMTAK tegevusala kood m\xF5jutab VKE finantseerimisv\xF5imalusi.",
+    content: [
+      "EMTAK (Eesti majanduse tegevusalade klassifikaator) m\xE4\xE4rab, millistesse toetusmeetmetesse ja riskikategooriatesse ettev\xF5te automaatselt liigitub.",
+      "Mitmed EIS/RTK meetmed on sektorispetsiifilised \u2014 nt tootearenduse toetused eeldavad tootmis- v\xF5i tehnoloogiasektori EMTAK koodi, teenindussektori ettev\xF5tted ei kvalifitseeru.",
+      "Panga sisemine riskihinnang kasutab EMTAK koodi v\xF5rdlusena sektori keskmise maksej\xF5uetuse m\xE4\xE4raga \u2014 k\xF5rge riskiga sektorid (nt toitlustus, ehitus allt\xF6\xF6v\xF5tt) saavad rangema hinnangu.",
+      'Vale v\xF5i liiga \xFCldine EMTAK kood (nt "muu \xE4ritegevus") v\xE4hendab v\xF5imalust sobitada ettev\xF5tet sektorispetsiifilise toetusmeetmega.',
+      "Mitme EMTAK koodi korral (p\xF5hitegevusala + k\xF5rvaltegevusalad) loetakse toetuste hindamisel \xFCldjuhul p\xF5hitegevusala, kuid tegelik k\xE4ibejaotus tegevusalade vahel v\xF5ib taotluse hindamist m\xF5jutada.",
+      "EMTAK kood peab vastama \xE4riregistri kandele \u2014 lahknevus tegeliku tegevuse ja registreeritud koodi vahel on tagasil\xFCkkamise p\xF5hjus."
+    ]
+  },
+  {
+    id: "eu-funding-models",
+    title: "EL rahastamise mudelid",
+    category: "eu_funding",
+    summary: "Peamised EL-i rahastamismehhanismid, mis j\xF5uavad Eesti VKE-de ja K\xDC-deni.",
+    content: [
+      "Struktuurifondid (Euroopa Regionaalarengu Fond, ERF): kanaliseeritakse Eestisse RTK ja EIS kaudu, rahastavad regionaalarengut, ettev\xF5tluse konkurentsiv\xF5imet ja energiat\xF5husust.",
+      "\xDChtekuuluvusfond: suunatud suurematele infrastruktuuri- ja keskkonnaprojektidele, harva otse \xFCksikettev\xF5ttele.",
+      "Taaste- ja vastupidavusrahastu (RRF): COVID-j\xE4rgne fond, Eestis kasutatud mh korterelamute rekonstrueerimistoetuse rahastamiseks.",
+      "InvestEU: Euroopa Investeerimispanga grupi kaudu antavad k\xE4endused ja laenuinstrumendid, sageli vahendatud kohalike pankade kaudu (nt KredEx k\xE4endus).",
+      "V\xE4hese t\xE4htsusega abi (de minimis) reegel: enamik EIS/RTK VKE toetusi antakse selle raames \u2014 piirm\xE4\xE4r on 300 000 EUR kolme majandusaasta jooksul ettev\xF5tja kohta (2023-2027 perioodil kehtiv piirm\xE4\xE4r, kontrollida kehtivust taotlemise hetkel).",
+      "Otsetaotlused Euroopa Komisjonile (nt Horizon Europe) \u2014 m\xF5eldud pigem suurematele/innovatiivsematele projektidele, mitte t\xFC\xFCpilisele VKE-le v\xF5i K\xDC-le; n\xF5uab tavaliselt rahvusvahelist konsortsiumi."
+    ]
+  },
+  {
+    id: "top-5-rejection-reasons",
+    title: "5 levinumat tagasil\xFCkkamise p\xF5hjust",
+    category: "risk_factors",
+    summary: "K\xF5ige sagedasemad p\xF5hjused, miks VKE v\xF5i K\xDC laenu-/toetustaotlus tagasi l\xFCkatakse.",
+    content: [
+      "1. Maksuv\xF5lg EMTA ees taotluse esitamise hetkel \u2014 peaaegu k\xF5ik laenuandjad ja toetusmeetmed v\xE4listavad taotleja, kellel on kehtiv maksuv\xF5lg.",
+      "2. Ebapiisav DSCR / rahavoog kohustuste teenindamiseks \u2014 kui olemasolev ja planeeritav rahavoog ei kata uusi laenumakseid piisava puhvriga.",
+      "3. Puudulik v\xF5i vale dokumentatsioon \u2014 \xFCldkoosoleku protokolli formaalsed vead (K\xDC puhul), aegunud majandusaasta aruanded, EMTAK koodi lahknevus tegevusega.",
+      "4. Ebastabiilne v\xF5i langev k\xE4ive ilma selge p\xF5hjenduseta \u2014 laenuandja ei suuda hinnata tulevast maksev\xF5imet, kui trend on negatiivne ja seletamata.",
+      "5. Ebapiisav omafinantseering \u2014 enamik meetmeid ja laene n\xF5uavad kindlat omaosaluse m\xE4\xE4ra (t\xFC\xFCpiliselt 20-50%); selle puudumine on automaatne tagasil\xFCkkamise alus."
+    ]
+  }
+];
+
+// api/knowledgebase/index.ts
+var config = {
+  path: "/api/knowledgebase"
+};
+async function handler(req) {
+  if (req.method !== "GET") {
+    return jsonResponse({ error: "Method not allowed" }, 405);
+  }
+  const url = new URL(req.url);
+  const idFilter = url.searchParams.get("id");
+  const categoryFilter = url.searchParams.get("category");
+  const articles = data_default;
+  if (idFilter) {
+    const article = articles.find((a) => a.id === idFilter);
+    if (!article) {
+      return jsonResponse({ error: `Artiklit id="${idFilter}" ei leitud` }, 404);
+    }
+    return jsonResponse(article, 200);
+  }
+  let result = articles;
+  if (categoryFilter) {
+    result = result.filter((a) => a.category === categoryFilter);
+  }
+  return jsonResponse({ count: result.length, articles: result }, 200);
+}
+function jsonResponse(body, status) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" }
+  });
+}
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  config
+});
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiYXBpL2tub3dsZWRnZWJhc2UvaW5kZXgudHMiLCAiYXBpL2tub3dsZWRnZWJhc2UvZGF0YS5qc29uIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyIvLyBOZXRsaWZ5IEZ1bmN0aW9uICh2MiwgV2ViIEFQSSBoYW5kbGVyKVxuLy8gU2FtbSA5OiBUZWFkbXVzYmFhc2kgQVBJIChLaWh0IDMpXG4vLyBBbmRtZWFsbGlrYXM6IGtcdTAwRTRzaXRzaSBrdXJlZXJpdGF2IGRhdGEuanNvblxuLy8gUXVlcnkgcGFyYW1zOiA/aWQ9PGFydGljbGUtaWQ+ICA/Y2F0ZWdvcnk9PGNhdGVnb3J5PlxuXG5pbXBvcnQga25vd2xlZGdlYmFzZURhdGEgZnJvbSBcIi4vZGF0YS5qc29uXCI7XG5cbmV4cG9ydCBjb25zdCBjb25maWcgPSB7XG4gIHBhdGg6IFwiL2FwaS9rbm93bGVkZ2ViYXNlXCIsXG59O1xuXG5leHBvcnQgaW50ZXJmYWNlIEtub3dsZWRnZUFydGljbGUge1xuICBpZDogc3RyaW5nO1xuICB0aXRsZTogc3RyaW5nO1xuICBjYXRlZ29yeTogc3RyaW5nO1xuICBzdW1tYXJ5OiBzdHJpbmc7XG4gIGNvbnRlbnQ6IHN0cmluZ1tdO1xufVxuXG5leHBvcnQgZGVmYXVsdCBhc3luYyBmdW5jdGlvbiBoYW5kbGVyKHJlcTogUmVxdWVzdCk6IFByb21pc2U8UmVzcG9uc2U+IHtcbiAgaWYgKHJlcS5tZXRob2QgIT09IFwiR0VUXCIpIHtcbiAgICByZXR1cm4ganNvblJlc3BvbnNlKHsgZXJyb3I6IFwiTWV0aG9kIG5vdCBhbGxvd2VkXCIgfSwgNDA1KTtcbiAgfVxuXG4gIGNvbnN0IHVybCA9IG5ldyBVUkwocmVxLnVybCk7XG4gIGNvbnN0IGlkRmlsdGVyID0gdXJsLnNlYXJjaFBhcmFtcy5nZXQoXCJpZFwiKTtcbiAgY29uc3QgY2F0ZWdvcnlGaWx0ZXIgPSB1cmwuc2VhcmNoUGFyYW1zLmdldChcImNhdGVnb3J5XCIpO1xuXG4gIGNvbnN0IGFydGljbGVzID0ga25vd2xlZGdlYmFzZURhdGEgYXMgS25vd2xlZGdlQXJ0aWNsZVtdO1xuXG4gIGlmIChpZEZpbHRlcikge1xuICAgIGNvbnN0IGFydGljbGUgPSBhcnRpY2xlcy5maW5kKChhKSA9PiBhLmlkID09PSBpZEZpbHRlcik7XG4gICAgaWYgKCFhcnRpY2xlKSB7XG4gICAgICByZXR1cm4ganNvblJlc3BvbnNlKHsgZXJyb3I6IGBBcnRpa2xpdCBpZD1cIiR7aWRGaWx0ZXJ9XCIgZWkgbGVpdHVkYCB9LCA0MDQpO1xuICAgIH1cbiAgICByZXR1cm4ganNvblJlc3BvbnNlKGFydGljbGUsIDIwMCk7XG4gIH1cblxuICBsZXQgcmVzdWx0ID0gYXJ0aWNsZXM7XG4gIGlmIChjYXRlZ29yeUZpbHRlcikge1xuICAgIHJlc3VsdCA9IHJlc3VsdC5maWx0ZXIoKGEpID0+IGEuY2F0ZWdvcnkgPT09IGNhdGVnb3J5RmlsdGVyKTtcbiAgfVxuXG4gIHJldHVybiBqc29uUmVzcG9uc2UoeyBjb3VudDogcmVzdWx0Lmxlbmd0aCwgYXJ0aWNsZXM6IHJlc3VsdCB9LCAyMDApO1xufVxuXG5mdW5jdGlvbiBqc29uUmVzcG9uc2UoYm9keTogdW5rbm93biwgc3RhdHVzOiBudW1iZXIpOiBSZXNwb25zZSB7XG4gIHJldHVybiBuZXcgUmVzcG9uc2UoSlNPTi5zdHJpbmdpZnkoYm9keSksIHtcbiAgICBzdGF0dXMsXG4gICAgaGVhZGVyczogeyBcIkNvbnRlbnQtVHlwZVwiOiBcImFwcGxpY2F0aW9uL2pzb25cIiB9LFxuICB9KTtcbn1cbiIsICJbXG4gIHtcbiAgICBcImlkXCI6IFwiYmFuay1zdGF0ZW1lbnQtcmVhZGluZ1wiLFxuICAgIFwidGl0bGVcIjogXCJNaWRhIHBhbmsga29udG92XHUwMEU0bGphdlx1MDBGNXR0ZWx0IGxvZWJcIixcbiAgICBcImNhdGVnb3J5XCI6IFwiZmluYW5jaW5nX2Jhc2ljc1wiLFxuICAgIFwic3VtbWFyeVwiOiBcIlBlYW1pc2VkIHNpZ25hYWxpZCwgbWlkYSBsYWVudWFuZGphIHBhbmdhdlx1MDBFNGxqYXZcdTAwRjV0dGVzdCBoaW5kYW1pc2VsIG90c2liLlwiLFxuICAgIFwiY29udGVudFwiOiBbXG4gICAgICBcIlJhaGF2b28gcmVndWxhYXJzdXM6IGthcyBzaXNzZXR1bGVrdWQgc2FhYnV2YWQgXHUwMEZDaHRsYXNlIGludGVydmFsbGlnYSAoa3V1cFx1MDBGNWhpbmUsIGV0dGVhcnZhdGF2KSB2XHUwMEY1aSBqdWh1c2xpa3VsdC5cIixcbiAgICAgIFwiS1x1MDBFNGliZSBzdXVydXMgamEgdHJlbmQgdlx1MDBFNGhlbWFsdCA2LTEyIGt1dSBsXHUwMEY1aWtlcyBcdTIwMTQga2FzdmF2LCBzdGFiaWlsbmUgdlx1MDBGNWkgbGFuZ2V2IHRyZW5kIG1cdTAwRjVqdXRhYiByaXNraWhpbm5hbmd1dCBvdHNlc2VsdC5cIixcbiAgICAgIFwiRGViaXRvb3JzZSBqYSBrcmVkaXRvb3JzZSB0c1x1MDBGQ2tsaSB0YXNha2FhbDoga2FzIGV0dGV2XHUwMEY1dGUgc3V1ZGFiIG9tYSBrb2h1c3R1c2kgdFx1MDBFNGl0YSBpbG1hIHBpZGV2YSBcdTAwRkNsZWt1bHUgKG1paW51cyl0YSBqXHUwMEU0XHUwMEU0bWlzZXRhLlwiLFxuICAgICAgXCJFYmFyZWd1bGFhcnNlZCBzdXVyZWQgdlx1MDBFNGxqYW1ha3NlZCAobnQgdHJhaHZpZCwgdmlpdmlzZWQsIGlua2Fzc28pIFx1MjAxNCBuZWVkIG9uIHB1bmFzZWQgbGlwdWQsIG1pcyB2aWl0YXZhZCBmaW5hbnRzcmFza3VzdGVsZS5cIixcbiAgICAgIFwiU3VsYXJhaGFrXHUwMEU0aWJlIG9zYWthYWwgXHUyMDE0IGtcdTAwRjVyZ2Ugc3VsYXJhaGFrXHUwMEU0aXZlIHZcdTAwRTRoZW5kYWIgalx1MDBFNGxnaXRhdnVzdCBqYSB0ZWtpdGFiIGtcdTAwRkNzaW11c2kgdHVsdWFsbGlrYXRlIGxlZ2l0aWltc3VzZSBrb2h0YS5cIixcbiAgICAgIFwiS29udG9kZSBhcnYgamEgbmVuZGV2YWhlbGluZSBsaWlrdW1pbmUgXHUyMDE0IG1pdG1lIGtvbnRvIHZhaGVsIHJpbmdpIGxpaWt1diByYWhhIHZcdTAwRjVpYiB2aWlkYXRhIGthdHNlbGUgdmFyamF0YSB0ZWdlbGlra3UgZmluYW50c3NlaXN1LlwiLFxuICAgICAgXCJPbGVtYXNvbGV2YXRlIGxhZW51bWFrc2V0ZSByZWd1bGFhcnN1cyBqYSBqXHUwMEU0cmplcGlkZXZ1cyBcdTIwMTQgaGlsaW5lbnVkIG1ha3NlZCBvbiBcdTAwRkNrcyB0dWdldmFtYWlkIG5lZ2F0aWl2c2VpZCBzaWduYWFsZS5cIixcbiAgICAgIFwiTWFrc3VhbWV0aSAoRU1UQSkgb3RzZWtvcnJhbGR1c2VkIGphIG1ha3N1dlx1MDBGNWxhIG1cdTAwRTRya2VkIHZcdTAwRTRsamF2XHUwMEY1dHRlbC5cIlxuICAgIF1cbiAgfSxcbiAge1xuICAgIFwiaWRcIjogXCJreS1idXJlYXVjcmFjeS1wYXRoXCIsXG4gICAgXCJ0aXRsZVwiOiBcIktcdTAwREMgYlx1MDBGQ3Jva3JhYXRpYSB0ZWVcIixcbiAgICBcImNhdGVnb3J5XCI6IFwia3lfcHJvY2Vzc1wiLFxuICAgIFwic3VtbWFyeVwiOiBcIktvcnRlcmlcdTAwRkNoaXN0dSBmb3JtYWFsbmUgdGVlIGZpbmFudHNlZXJpbWlzb3RzdXNlc3QgdGFvdGx1c2UgZXNpdGFtaXNlbmkuXCIsXG4gICAgXCJjb250ZW50XCI6IFtcbiAgICAgIFwiMS4gSnVoYXR1c2UgZXR0ZXBhbmVrOiBqdWhhdHVzIGtvb3N0YWIgaW52ZXN0ZWVyaW5ndS9yZW5vdmVlcmltaXNlIGV0dGVwYW5la3Uga29vcyBlc2lhbGdzZSBlZWxhcnZlZ2EuXCIsXG4gICAgICBcIjIuIEVuZXJnaWFhdWRpdCAoc29vdml0YXRhdiBlbm5lIFx1MDBGQ2xka29vc29sZWt1dCk6IGFubmFiIG9iamVrdGlpdnNlIGxcdTAwRTRodGVwdW5rdGkgamEgdHVnZXZkYWIgaGlsaXNlbWF0IHRhb3RsdXN0LlwiLFxuICAgICAgXCIzLiBcdTAwRENsZGtvb3NvbGVrdSBrb2trdWt1dHN1bWluZTogc2VhZHVzbGlrIGV0dGV0ZWF0YW1pc3RcdTAwRTRodGFlZywgcFx1MDBFNGV2YWtvcnJhIGF2YWxpa3VzdGFtaW5lIGxpaWttZXRlbGUuXCIsXG4gICAgICBcIjQuIFx1MDBEQ2xka29vc29sZWt1IG90c3VzOiBlbmFtaWsgbGFlbnVhbmRqYWlkIGphIEVJUy9LcmVkRXggbWVldG1laWQgZWVsZGF2YWQga3ZhbGlmaXRzZWVyaXR1ZCAoMi8zKSBoXHUwMEU0XHUwMEU0bHRlZW5hbXVzdCBzdXVyZW1hdGUgaW52ZXN0ZWVyaW5ndXRlIHB1aHVsOyBvc2FkIHZcdTAwRTRpa3NlbWFkIG90c3VzZWQgcGlpc2F2YWQgbGlodGhcdTAwRTRcdTAwRTRsdGVlbmFtdXNlc3QuXCIsXG4gICAgICBcIjUuIFRlaG5pbGlzZSBrb25zdWx0YW5kaS9wcm9qZWt0ZWVyaWphIGthYXNhbWluZToga29vc3RhdGFrc2UgdGVobmlsaW5lIGtpcmplbGR1cyBqYSB0XHUwMEU0cHNlbSBlZWxhcnZlLlwiLFxuICAgICAgXCI2LiBSYWhhc3R1c2Ugc3RydWt0dXJlZXJpbWluZTogb21hZmluYW50c2VlcmluZyArIHRvZXR1cyAoa3VpIGtvaGFsZHViKSArIHBhbmdhbGFlbi9LcmVkRXggbGFlbi5cIixcbiAgICAgIFwiNy4gVGFvdGx1c2Uga29vc3RhbWluZSBqYSBlc2l0YW1pbmU6IEUtdG9ldHVzZSBrZXNra29uZCAoRUlTIG1lZXRtZXRlIHB1aHVsKSB2XHUwMEY1aSBwYW5nYSBlbmRhIHRhb3RsdXN2b3JtLlwiLFxuICAgICAgXCI4LiBNZW5ldGx1c3Blcmlvb2Q6IEtyZWRFeC9FSVMgc3V1cmVtYXRlIG1lZXRtZXRlIHB1aHVsIHNhZ2VsaSBtaXR1IGt1dWQuXCIsXG4gICAgICBcIjkuIExlcGluZ3Ugc1x1MDBGNWxtaW1pbmUgamEgdFx1MDBGNlx1MDBGNmRlIHRlb3N0YW1pbmU6IHNhZ2VsaSBldGFwaXZpaXNpbGluZSB2XHUwMEU0bGphbWFrc2UgdmFzdGF2YWx0IHRlaHR1ZCB0XHUwMEY2XHUwMEY2ZGUgbWFodWxlLlwiLFxuICAgICAgXCIxMC4gQXJ1YW5kbHVzOiB0b2V0dXNlIHNhYW51ZCBwcm9qZWt0aWQgcGVhdmFkIGVzaXRhbWEga3VsdWFydWFuZGUgamEgdFx1MDBGNWVuZGF2YWQgZG9rdW1lbmRpZC5cIlxuICAgIF1cbiAgfSxcbiAge1xuICAgIFwiaWRcIjogXCJlbXRhay1jb25uZWN0aW9uc1wiLFxuICAgIFwidGl0bGVcIjogXCJFTVRBSyBzZW9zZWRcIixcbiAgICBcImNhdGVnb3J5XCI6IFwidmtlX2NsYXNzaWZpY2F0aW9uXCIsXG4gICAgXCJzdW1tYXJ5XCI6IFwiS3VpZGFzIEVNVEFLIHRlZ2V2dXNhbGEga29vZCBtXHUwMEY1anV0YWIgVktFIGZpbmFudHNlZXJpbWlzdlx1MDBGNWltYWx1c2kuXCIsXG4gICAgXCJjb250ZW50XCI6IFtcbiAgICAgIFwiRU1UQUsgKEVlc3RpIG1hamFuZHVzZSB0ZWdldnVzYWxhZGUga2xhc3NpZmlrYWF0b3IpIG1cdTAwRTRcdTAwRTRyYWIsIG1pbGxpc3Rlc3NlIHRvZXR1c21lZXRtZXRlc3NlIGphIHJpc2tpa2F0ZWdvb3JpYXRlc3NlIGV0dGV2XHUwMEY1dGUgYXV0b21hYXRzZWx0IGxpaWdpdHViLlwiLFxuICAgICAgXCJNaXRtZWQgRUlTL1JUSyBtZWV0bWVkIG9uIHNla3RvcmlzcGV0c2lpZmlsaXNlZCBcdTIwMTQgbnQgdG9vdGVhcmVuZHVzZSB0b2V0dXNlZCBlZWxkYXZhZCB0b290bWlzLSB2XHUwMEY1aSB0ZWhub2xvb2dpYXNla3RvcmkgRU1UQUsga29vZGksIHRlZW5pbmR1c3Nla3RvcmkgZXR0ZXZcdTAwRjV0dGVkIGVpIGt2YWxpZml0c2VlcnUuXCIsXG4gICAgICBcIlBhbmdhIHNpc2VtaW5lIHJpc2tpaGlubmFuZyBrYXN1dGFiIEVNVEFLIGtvb2RpIHZcdTAwRjVyZGx1c2VuYSBzZWt0b3JpIGtlc2ttaXNlIG1ha3Nlalx1MDBGNXVldHVzZSBtXHUwMEU0XHUwMEU0cmFnYSBcdTIwMTQga1x1MDBGNXJnZSByaXNraWdhIHNla3RvcmlkIChudCB0b2l0bHVzdHVzLCBlaGl0dXMgYWxsdFx1MDBGNlx1MDBGNnZcdTAwRjV0dCkgc2FhdmFkIHJhbmdlbWEgaGlubmFuZ3UuXCIsXG4gICAgICBcIlZhbGUgdlx1MDBGNWkgbGlpZ2EgXHUwMEZDbGRpbmUgRU1UQUsga29vZCAobnQgXFxcIm11dSBcdTAwRTRyaXRlZ2V2dXNcXFwiKSB2XHUwMEU0aGVuZGFiIHZcdTAwRjVpbWFsdXN0IHNvYml0YWRhIGV0dGV2XHUwMEY1dGV0IHNla3RvcmlzcGV0c2lpZmlsaXNlIHRvZXR1c21lZXRtZWdhLlwiLFxuICAgICAgXCJNaXRtZSBFTVRBSyBrb29kaSBrb3JyYWwgKHBcdTAwRjVoaXRlZ2V2dXNhbGEgKyBrXHUwMEY1cnZhbHRlZ2V2dXNhbGFkKSBsb2V0YWtzZSB0b2V0dXN0ZSBoaW5kYW1pc2VsIFx1MDBGQ2xkanVodWwgcFx1MDBGNWhpdGVnZXZ1c2FsYSwga3VpZCB0ZWdlbGlrIGtcdTAwRTRpYmVqYW90dXMgdGVnZXZ1c2FsYWRlIHZhaGVsIHZcdTAwRjVpYiB0YW90bHVzZSBoaW5kYW1pc3QgbVx1MDBGNWp1dGFkYS5cIixcbiAgICAgIFwiRU1UQUsga29vZCBwZWFiIHZhc3RhbWEgXHUwMEU0cmlyZWdpc3RyaSBrYW5kZWxlIFx1MjAxNCBsYWhrbmV2dXMgdGVnZWxpa3UgdGVnZXZ1c2UgamEgcmVnaXN0cmVlcml0dWQga29vZGkgdmFoZWwgb24gdGFnYXNpbFx1MDBGQ2trYW1pc2UgcFx1MDBGNWhqdXMuXCJcbiAgICBdXG4gIH0sXG4gIHtcbiAgICBcImlkXCI6IFwiZXUtZnVuZGluZy1tb2RlbHNcIixcbiAgICBcInRpdGxlXCI6IFwiRUwgcmFoYXN0YW1pc2UgbXVkZWxpZFwiLFxuICAgIFwiY2F0ZWdvcnlcIjogXCJldV9mdW5kaW5nXCIsXG4gICAgXCJzdW1tYXJ5XCI6IFwiUGVhbWlzZWQgRUwtaSByYWhhc3RhbWlzbWVoaGFuaXNtaWQsIG1pcyBqXHUwMEY1dWF2YWQgRWVzdGkgVktFLWRlIGphIEtcdTAwREMtZGVuaS5cIixcbiAgICBcImNvbnRlbnRcIjogW1xuICAgICAgXCJTdHJ1a3R1dXJpZm9uZGlkIChFdXJvb3BhIFJlZ2lvbmFhbGFyZW5ndSBGb25kLCBFUkYpOiBrYW5hbGlzZWVyaXRha3NlIEVlc3Rpc3NlIFJUSyBqYSBFSVMga2F1ZHUsIHJhaGFzdGF2YWQgcmVnaW9uYWFsYXJlbmd1dCwgZXR0ZXZcdTAwRjV0bHVzZSBrb25rdXJlbnRzaXZcdTAwRjVpbWV0IGphIGVuZXJnaWF0XHUwMEY1aHVzdXN0LlwiLFxuICAgICAgXCJcdTAwRENodGVrdXVsdXZ1c2ZvbmQ6IHN1dW5hdHVkIHN1dXJlbWF0ZWxlIGluZnJhc3RydWt0dXVyaS0gamEga2Vza2tvbm5hcHJvamVrdGlkZWxlLCBoYXJ2YSBvdHNlIFx1MDBGQ2tzaWtldHRldlx1MDBGNXR0ZWxlLlwiLFxuICAgICAgXCJUYWFzdGUtIGphIHZhc3R1cGlkYXZ1c3JhaGFzdHUgKFJSRik6IENPVklELWpcdTAwRTRyZ25lIGZvbmQsIEVlc3RpcyBrYXN1dGF0dWQgbWgga29ydGVyZWxhbXV0ZSByZWtvbnN0cnVlZXJpbWlzdG9ldHVzZSByYWhhc3RhbWlzZWtzLlwiLFxuICAgICAgXCJJbnZlc3RFVTogRXVyb29wYSBJbnZlc3RlZXJpbWlzcGFuZ2EgZ3J1cGkga2F1ZHUgYW50YXZhZCBrXHUwMEU0ZW5kdXNlZCBqYSBsYWVudWluc3RydW1lbmRpZCwgc2FnZWxpIHZhaGVuZGF0dWQga29oYWxpa2UgcGFua2FkZSBrYXVkdSAobnQgS3JlZEV4IGtcdTAwRTRlbmR1cykuXCIsXG4gICAgICBcIlZcdTAwRTRoZXNlIHRcdTAwRTRodHN1c2VnYSBhYmkgKGRlIG1pbmltaXMpIHJlZWdlbDogZW5hbWlrIEVJUy9SVEsgVktFIHRvZXR1c2kgYW50YWtzZSBzZWxsZSByYWFtZXMgXHUyMDE0IHBpaXJtXHUwMEU0XHUwMEU0ciBvbiAzMDAgMDAwIEVVUiBrb2xtZSBtYWphbmR1c2Fhc3RhIGpvb2tzdWwgZXR0ZXZcdTAwRjV0amEga29odGEgKDIwMjMtMjAyNyBwZXJpb29kaWwga2VodGl2IHBpaXJtXHUwMEU0XHUwMEU0ciwga29udHJvbGxpZGEga2VodGl2dXN0IHRhb3RsZW1pc2UgaGV0a2VsKS5cIixcbiAgICAgIFwiT3RzZXRhb3RsdXNlZCBFdXJvb3BhIEtvbWlzam9uaWxlIChudCBIb3Jpem9uIEV1cm9wZSkgXHUyMDE0IG1cdTAwRjVlbGR1ZCBwaWdlbSBzdXVyZW1hdGVsZS9pbm5vdmF0aWl2c2VtYXRlbGUgcHJvamVrdGlkZWxlLCBtaXR0ZSB0XHUwMEZDXHUwMEZDcGlsaXNlbGUgVktFLWxlIHZcdTAwRjVpIEtcdTAwREMtbGU7IG5cdTAwRjV1YWIgdGF2YWxpc2VsdCByYWh2dXN2YWhlbGlzdCBrb25zb3J0c2l1bWkuXCJcbiAgICBdXG4gIH0sXG4gIHtcbiAgICBcImlkXCI6IFwidG9wLTUtcmVqZWN0aW9uLXJlYXNvbnNcIixcbiAgICBcInRpdGxlXCI6IFwiNSBsZXZpbnVtYXQgdGFnYXNpbFx1MDBGQ2trYW1pc2UgcFx1MDBGNWhqdXN0XCIsXG4gICAgXCJjYXRlZ29yeVwiOiBcInJpc2tfZmFjdG9yc1wiLFxuICAgIFwic3VtbWFyeVwiOiBcIktcdTAwRjVpZ2Ugc2FnZWRhc2VtYWQgcFx1MDBGNWhqdXNlZCwgbWlrcyBWS0Ugdlx1MDBGNWkgS1x1MDBEQyBsYWVudS0vdG9ldHVzdGFvdGx1cyB0YWdhc2kgbFx1MDBGQ2thdGFrc2UuXCIsXG4gICAgXCJjb250ZW50XCI6IFtcbiAgICAgIFwiMS4gTWFrc3V2XHUwMEY1bGcgRU1UQSBlZXMgdGFvdGx1c2UgZXNpdGFtaXNlIGhldGtlbCBcdTIwMTQgcGVhYWVndSBrXHUwMEY1aWsgbGFlbnVhbmRqYWQgamEgdG9ldHVzbWVldG1lZCB2XHUwMEU0bGlzdGF2YWQgdGFvdGxlamEsIGtlbGxlbCBvbiBrZWh0aXYgbWFrc3V2XHUwMEY1bGcuXCIsXG4gICAgICBcIjIuIEViYXBpaXNhdiBEU0NSIC8gcmFoYXZvb2cga29odXN0dXN0ZSB0ZWVuaW5kYW1pc2VrcyBcdTIwMTQga3VpIG9sZW1hc29sZXYgamEgcGxhbmVlcml0YXYgcmFoYXZvb2cgZWkga2F0YSB1dXNpIGxhZW51bWFrc2VpZCBwaWlzYXZhIHB1aHZyaWdhLlwiLFxuICAgICAgXCIzLiBQdXVkdWxpayB2XHUwMEY1aSB2YWxlIGRva3VtZW50YXRzaW9vbiBcdTIwMTQgXHUwMEZDbGRrb29zb2xla3UgcHJvdG9rb2xsaSBmb3JtYWFsc2VkIHZlYWQgKEtcdTAwREMgcHVodWwpLCBhZWd1bnVkIG1hamFuZHVzYWFzdGEgYXJ1YW5kZWQsIEVNVEFLIGtvb2RpIGxhaGtuZXZ1cyB0ZWdldnVzZWdhLlwiLFxuICAgICAgXCI0LiBFYmFzdGFiaWlsbmUgdlx1MDBGNWkgbGFuZ2V2IGtcdTAwRTRpdmUgaWxtYSBzZWxnZSBwXHUwMEY1aGplbmR1c2V0YSBcdTIwMTQgbGFlbnVhbmRqYSBlaSBzdXVkYSBoaW5uYXRhIHR1bGV2YXN0IG1ha3Nldlx1MDBGNWltZXQsIGt1aSB0cmVuZCBvbiBuZWdhdGlpdm5lIGphIHNlbGV0YW1hdGEuXCIsXG4gICAgICBcIjUuIEViYXBpaXNhdiBvbWFmaW5hbnRzZWVyaW5nIFx1MjAxNCBlbmFtaWsgbWVldG1laWQgamEgbGFlbmUgblx1MDBGNXVhdmFkIGtpbmRsYXQgb21hb3NhbHVzZSBtXHUwMEU0XHUwMEU0cmEgKHRcdTAwRkNcdTAwRkNwaWxpc2VsdCAyMC01MCUpOyBzZWxsZSBwdXVkdW1pbmUgb24gYXV0b21hYXRuZSB0YWdhc2lsXHUwMEZDa2thbWlzZSBhbHVzLlwiXG4gICAgXVxuICB9XG5dXG4iXSwKICAibWFwcGluZ3MiOiAiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQTs7O0FDQUE7QUFBQSxFQUNFO0FBQUEsSUFDRSxJQUFNO0FBQUEsSUFDTixPQUFTO0FBQUEsSUFDVCxVQUFZO0FBQUEsSUFDWixTQUFXO0FBQUEsSUFDWCxTQUFXO0FBQUEsTUFDVDtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsTUFDQTtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsTUFDQTtBQUFBLE1BQ0E7QUFBQSxJQUNGO0FBQUEsRUFDRjtBQUFBLEVBQ0E7QUFBQSxJQUNFLElBQU07QUFBQSxJQUNOLE9BQVM7QUFBQSxJQUNULFVBQVk7QUFBQSxJQUNaLFNBQVc7QUFBQSxJQUNYLFNBQVc7QUFBQSxNQUNUO0FBQUEsTUFDQTtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsTUFDQTtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsTUFDQTtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsSUFDRjtBQUFBLEVBQ0Y7QUFBQSxFQUNBO0FBQUEsSUFDRSxJQUFNO0FBQUEsSUFDTixPQUFTO0FBQUEsSUFDVCxVQUFZO0FBQUEsSUFDWixTQUFXO0FBQUEsSUFDWCxTQUFXO0FBQUEsTUFDVDtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsTUFDQTtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsSUFDRjtBQUFBLEVBQ0Y7QUFBQSxFQUNBO0FBQUEsSUFDRSxJQUFNO0FBQUEsSUFDTixPQUFTO0FBQUEsSUFDVCxVQUFZO0FBQUEsSUFDWixTQUFXO0FBQUEsSUFDWCxTQUFXO0FBQUEsTUFDVDtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsTUFDQTtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsSUFDRjtBQUFBLEVBQ0Y7QUFBQSxFQUNBO0FBQUEsSUFDRSxJQUFNO0FBQUEsSUFDTixPQUFTO0FBQUEsSUFDVCxVQUFZO0FBQUEsSUFDWixTQUFXO0FBQUEsSUFDWCxTQUFXO0FBQUEsTUFDVDtBQUFBLE1BQ0E7QUFBQSxNQUNBO0FBQUEsTUFDQTtBQUFBLE1BQ0E7QUFBQSxJQUNGO0FBQUEsRUFDRjtBQUNGOzs7QURyRU8sSUFBTSxTQUFTO0FBQUEsRUFDcEIsTUFBTTtBQUNSO0FBVUEsZUFBTyxRQUErQixLQUFpQztBQUNyRSxNQUFJLElBQUksV0FBVyxPQUFPO0FBQ3hCLFdBQU8sYUFBYSxFQUFFLE9BQU8scUJBQXFCLEdBQUcsR0FBRztBQUFBLEVBQzFEO0FBRUEsUUFBTSxNQUFNLElBQUksSUFBSSxJQUFJLEdBQUc7QUFDM0IsUUFBTSxXQUFXLElBQUksYUFBYSxJQUFJLElBQUk7QUFDMUMsUUFBTSxpQkFBaUIsSUFBSSxhQUFhLElBQUksVUFBVTtBQUV0RCxRQUFNLFdBQVc7QUFFakIsTUFBSSxVQUFVO0FBQ1osVUFBTSxVQUFVLFNBQVMsS0FBSyxDQUFDLE1BQU0sRUFBRSxPQUFPLFFBQVE7QUFDdEQsUUFBSSxDQUFDLFNBQVM7QUFDWixhQUFPLGFBQWEsRUFBRSxPQUFPLGdCQUFnQixRQUFRLGNBQWMsR0FBRyxHQUFHO0FBQUEsSUFDM0U7QUFDQSxXQUFPLGFBQWEsU0FBUyxHQUFHO0FBQUEsRUFDbEM7QUFFQSxNQUFJLFNBQVM7QUFDYixNQUFJLGdCQUFnQjtBQUNsQixhQUFTLE9BQU8sT0FBTyxDQUFDLE1BQU0sRUFBRSxhQUFhLGNBQWM7QUFBQSxFQUM3RDtBQUVBLFNBQU8sYUFBYSxFQUFFLE9BQU8sT0FBTyxRQUFRLFVBQVUsT0FBTyxHQUFHLEdBQUc7QUFDckU7QUFFQSxTQUFTLGFBQWEsTUFBZSxRQUEwQjtBQUM3RCxTQUFPLElBQUksU0FBUyxLQUFLLFVBQVUsSUFBSSxHQUFHO0FBQUEsSUFDeEM7QUFBQSxJQUNBLFNBQVMsRUFBRSxnQkFBZ0IsbUJBQW1CO0FBQUEsRUFDaEQsQ0FBQztBQUNIOyIsCiAgIm5hbWVzIjogW10KfQo=

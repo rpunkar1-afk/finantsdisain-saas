@@ -1,0 +1,1 @@
+import * as bootstrap from './___netlify-bootstrap.mjs';export const handler = bootstrap.getLambdaHandler('./api/ky-readiness/index.cjs')

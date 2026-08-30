@@ -1,0 +1,77 @@
+[
+  {
+    "id": "bank-statement-reading",
+    "title": "Mida pank kontoväljavõttelt loeb",
+    "category": "financing_basics",
+    "summary": "Peamised signaalid, mida laenuandja pangaväljavõttest hindamisel otsib.",
+    "content": [
+      "Rahavoo regulaarsus: kas sissetulekud saabuvad ühtlase intervalliga (kuupõhine, ettearvatav) või juhuslikult.",
+      "Käibe suurus ja trend vähemalt 6-12 kuu lõikes — kasvav, stabiilne või langev trend mõjutab riskihinnangut otseselt.",
+      "Debitoorse ja kreditoorse tsükli tasakaal: kas ettevõte suudab oma kohustusi täita ilma pideva ülekulu (miinus)ta jäämiseta.",
+      "Ebaregulaarsed suured väljamaksed (nt trahvid, viivised, inkasso) — need on punased lipud, mis viitavad finantsraskustele.",
+      "Sularahakäibe osakaal — kõrge sularahakäive vähendab jälgitavust ja tekitab küsimusi tuluallikate legitiimsuse kohta.",
+      "Kontode arv ja nendevaheline liikumine — mitme konto vahel ringi liikuv raha võib viidata katsele varjata tegelikku finantsseisu.",
+      "Olemasolevate laenumaksete regulaarsus ja järjepidevus — hilinenud maksed on üks tugevamaid negatiivseid signaale.",
+      "Maksuameti (EMTA) otsekorraldused ja maksuvõla märked väljavõttel."
+    ]
+  },
+  {
+    "id": "ky-bureaucracy-path",
+    "title": "KÜ bürokraatia tee",
+    "category": "ky_process",
+    "summary": "Korteriühistu formaalne tee finantseerimisotsusest taotluse esitamiseni.",
+    "content": [
+      "1. Juhatuse ettepanek: juhatus koostab investeeringu/renoveerimise ettepaneku koos esialgse eelarvega.",
+      "2. Energiaaudit (soovitatav enne üldkoosolekut): annab objektiivse lähtepunkti ja tugevdab hilisemat taotlust.",
+      "3. Üldkoosoleku kokkukutsumine: seaduslik etteteatamistähtaeg, päevakorra avalikustamine liikmetele.",
+      "4. Üldkoosoleku otsus: enamik laenuandjaid ja EIS/KredEx meetmeid eeldavad kvalifitseeritud (2/3) häälteenamust suuremate investeeringute puhul; osad väiksemad otsused piisavad lihthäälteenamusest.",
+      "5. Tehnilise konsultandi/projekteerija kaasamine: koostatakse tehniline kirjeldus ja täpsem eelarve.",
+      "6. Rahastuse struktureerimine: omafinantseering + toetus (kui kohaldub) + pangalaen/KredEx laen.",
+      "7. Taotluse koostamine ja esitamine: E-toetuse keskkond (EIS meetmete puhul) või panga enda taotlusvorm.",
+      "8. Menetlusperiood: KredEx/EIS suuremate meetmete puhul sageli mitu kuud.",
+      "9. Lepingu sõlmimine ja tööde teostamine: sageli etapiviisiline väljamakse vastavalt tehtud tööde mahule.",
+      "10. Aruandlus: toetuse saanud projektid peavad esitama kuluaruande ja tõendavad dokumendid."
+    ]
+  },
+  {
+    "id": "emtak-connections",
+    "title": "EMTAK seosed",
+    "category": "vke_classification",
+    "summary": "Kuidas EMTAK tegevusala kood mõjutab VKE finantseerimisvõimalusi.",
+    "content": [
+      "EMTAK (Eesti majanduse tegevusalade klassifikaator) määrab, millistesse toetusmeetmetesse ja riskikategooriatesse ettevõte automaatselt liigitub.",
+      "Mitmed EIS/RTK meetmed on sektorispetsiifilised — nt tootearenduse toetused eeldavad tootmis- või tehnoloogiasektori EMTAK koodi, teenindussektori ettevõtted ei kvalifitseeru.",
+      "Panga sisemine riskihinnang kasutab EMTAK koodi võrdlusena sektori keskmise maksejõuetuse määraga — kõrge riskiga sektorid (nt toitlustus, ehitus alltöövõtt) saavad rangema hinnangu.",
+      "Vale või liiga üldine EMTAK kood (nt \"muu äritegevus\") vähendab võimalust sobitada ettevõtet sektorispetsiifilise toetusmeetmega.",
+      "Mitme EMTAK koodi korral (põhitegevusala + kõrvaltegevusalad) loetakse toetuste hindamisel üldjuhul põhitegevusala, kuid tegelik käibejaotus tegevusalade vahel võib taotluse hindamist mõjutada.",
+      "EMTAK kood peab vastama äriregistri kandele — lahknevus tegeliku tegevuse ja registreeritud koodi vahel on tagasilükkamise põhjus."
+    ]
+  },
+  {
+    "id": "eu-funding-models",
+    "title": "EL rahastamise mudelid",
+    "category": "eu_funding",
+    "summary": "Peamised EL-i rahastamismehhanismid, mis jõuavad Eesti VKE-de ja KÜ-deni.",
+    "content": [
+      "Struktuurifondid (Euroopa Regionaalarengu Fond, ERF): kanaliseeritakse Eestisse RTK ja EIS kaudu, rahastavad regionaalarengut, ettevõtluse konkurentsivõimet ja energiatõhusust.",
+      "Ühtekuuluvusfond: suunatud suurematele infrastruktuuri- ja keskkonnaprojektidele, harva otse üksikettevõttele.",
+      "Taaste- ja vastupidavusrahastu (RRF): COVID-järgne fond, Eestis kasutatud mh korterelamute rekonstrueerimistoetuse rahastamiseks.",
+      "InvestEU: Euroopa Investeerimispanga grupi kaudu antavad käendused ja laenuinstrumendid, sageli vahendatud kohalike pankade kaudu (nt KredEx käendus).",
+      "Vähese tähtsusega abi (de minimis) reegel: enamik EIS/RTK VKE toetusi antakse selle raames — piirmäär on 300 000 EUR kolme majandusaasta jooksul ettevõtja kohta (2023-2027 perioodil kehtiv piirmäär, kontrollida kehtivust taotlemise hetkel).",
+      "Otsetaotlused Euroopa Komisjonile (nt Horizon Europe) — mõeldud pigem suurematele/innovatiivsematele projektidele, mitte tüüpilisele VKE-le või KÜ-le; nõuab tavaliselt rahvusvahelist konsortsiumi."
+    ]
+  },
+  {
+    "id": "top-5-rejection-reasons",
+    "title": "5 levinumat tagasilükkamise põhjust",
+    "category": "risk_factors",
+    "summary": "Kõige sagedasemad põhjused, miks VKE või KÜ laenu-/toetustaotlus tagasi lükatakse.",
+    "content": [
+      "1. Maksuvõlg EMTA ees taotluse esitamise hetkel — peaaegu kõik laenuandjad ja toetusmeetmed välistavad taotleja, kellel on kehtiv maksuvõlg.",
+      "2. Ebapiisav DSCR / rahavoog kohustuste teenindamiseks — kui olemasolev ja planeeritav rahavoog ei kata uusi laenumakseid piisava puhvriga.",
+      "3. Puudulik või vale dokumentatsioon — üldkoosoleku protokolli formaalsed vead (KÜ puhul), aegunud majandusaasta aruanded, EMTAK koodi lahknevus tegevusega.",
+      "4. Ebastabiilne või langev käive ilma selge põhjenduseta — laenuandja ei suuda hinnata tulevast maksevõimet, kui trend on negatiivne ja seletamata.",
+      "5. Ebapiisav omafinantseering — enamik meetmeid ja laene nõuavad kindlat omaosaluse määra (tüüpiliselt 20-50%); selle puudumine on automaatne tagasilükkamise alus."
+    ]
+  }
+]
