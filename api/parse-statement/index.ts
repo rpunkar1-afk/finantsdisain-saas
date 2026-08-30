@@ -1,9 +1,13 @@
 // Netlify Function (v2, Web API handler)
-// Samm 2: PDF parser
-// Voog: PDF (multipart/form-data) -> tekstiekstraktsioon (pdf-parse) -> Claude API -> struktureeritud JSON
+// Samm 2: PDF parser (v2 — parandatud pärast live 413 viga)
+// Voog: PDF tekstiekstraktsioon toimub NÜÜD BRAUSERIS (pdfjs-dist, components/UploadPDF.tsx),
+// see endpoint saab ainult ekstraheeritud teksti JSON-ina -> Claude API -> struktureeritud JSON.
+// Muudatuse põhjus: originaalne multipart/form-data PDF üleslaadimine ületas Netlify
+// Functions'i sünkroonse päringu payload piiri (~6MB, base64 kodeeringuga ~4.5MB
+// kasutatavat) reaalsete pangaväljavõtetega (testitud fail: 6.8MB). Tekst on
+// tavaliselt <1% PDF-faili suurusest, mistõttu see probleem kaob täielikult.
 // Toetab: Nordea, Swedbank, SEB pangaväljavõtted
 
-import { PDFParse } from "pdf-parse";
 import Anthropic from "@anthropic-ai/sdk";
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "crypto";
@@ -27,7 +31,12 @@ export interface ParseStatementResult {
   period_end: string | null;
   transactions: ParsedTransaction[];
   warnings: string[];
-  statement_blob_id: string; // Samm 12: viide salvestatud originaal-PDF-ile
+  statement_blob_id: string; // Samm 12: viide salvestatud ekstraheeritud tekstile
+}
+
+interface ParseStatementRequestBody {
+  text: string;
+  filename?: string;
 }
 
 const SUPPORTED_BANKS = ["nordea", "swedbank", "seb"] as const;
@@ -67,16 +76,13 @@ export default async function handler(req: Request): Promise<Response> {
     }
     try {
       const statementsStore = getStore("statements");
-      const data = await statementsStore.get(blobId, { type: "arrayBuffer" });
+      const data = await statementsStore.get(blobId, { type: "text" });
       if (!data) {
-        return jsonResponse({ error: `PDF-i id="${blobId}" ei leitud` }, 404);
+        return jsonResponse({ error: `Salvestist id="${blobId}" ei leitud` }, 404);
       }
-      return new Response(data, {
-        status: 200,
-        headers: { "Content-Type": "application/pdf" },
-      });
+      return jsonResponse({ text: data }, 200);
     } catch (err) {
-      return jsonResponse({ error: "PDF taastamine ebaõnnestus", detail: String(err) }, 500);
+      return jsonResponse({ error: "Teksti taastamine ebaõnnestus", detail: String(err) }, 500);
     }
   }
 
@@ -92,60 +98,27 @@ export default async function handler(req: Request): Promise<Response> {
     );
   }
 
-  let fileBuffer: Buffer;
-  let originalFileName = "statement.pdf";
+  let body: ParseStatementRequestBody;
   try {
-    const formData = await req.formData();
-    const file = formData.get("file");
-    if (!file || !(file instanceof File)) {
-      return jsonResponse({ error: "Väli 'file' puudub või pole PDF" }, 400);
-    }
-    if (file.type !== "application/pdf") {
-      return jsonResponse({ error: "Ainult PDF failid on toetatud" }, 400);
-    }
-    originalFileName = file.name || originalFileName;
-    const arrayBuffer = await file.arrayBuffer();
-    fileBuffer = Buffer.from(arrayBuffer);
+    body = (await req.json()) as ParseStatementRequestBody;
   } catch (err) {
-    return jsonResponse(
-      { error: "Faili lugemine ebaõnnestus", detail: String(err) },
-      400,
-    );
+    return jsonResponse({ error: "Vigane JSON sisend", detail: String(err) }, 400);
   }
 
-  // Samm 12: salvesta originaal-PDF Netlify Blobs-i, enne töötlemist
+  const rawText = body.text;
+  if (!rawText || typeof rawText !== "string" || rawText.trim().length === 0) {
+    return jsonResponse({ error: "Väli 'text' puudub või on tühi" }, 400);
+  }
+
+  // Samm 12: salvesta ekstraheeritud tekst Netlify Blobs-i (asendab varasemat raw-PDF salvestust)
   const statementBlobId = randomUUID();
   try {
     const statementsStore = getStore("statements");
-    await statementsStore.set(statementBlobId, fileBuffer.buffer.slice(fileBuffer.byteOffset, fileBuffer.byteOffset + fileBuffer.byteLength) as ArrayBuffer, {
-      metadata: { filename: originalFileName, uploaded_at: new Date().toISOString() },
+    await statementsStore.set(statementBlobId, rawText, {
+      metadata: { filename: body.filename || "statement.pdf", uploaded_at: new Date().toISOString() },
     });
   } catch (err) {
-    // Salvestuse ebaõnnestumine ei tohi blokeerida analüüsi — logime ja jätkame ilma blob_id viiteta
-    console.error("PDF blob salvestus ebaõnnestus:", err);
-  }
-
-  let rawText: string;
-  const parser = new PDFParse({ data: fileBuffer });
-  try {
-    const parsed = await parser.getText();
-    rawText = parsed.text;
-    if (!rawText || rawText.trim().length === 0) {
-      return jsonResponse(
-        {
-          error:
-            "PDF-ist ei õnnestunud teksti eraldada (võib olla skaneeritud pilt, mitte tekst-PDF)",
-        },
-        422,
-      );
-    }
-  } catch (err) {
-    return jsonResponse(
-      { error: "PDF parsimine ebaõnnestus", detail: String(err) },
-      422,
-    );
-  } finally {
-    await parser.destroy();
+    console.error("Statement blob salvestus ebaõnnestus:", err);
   }
 
   const anthropic = new Anthropic({ apiKey });
