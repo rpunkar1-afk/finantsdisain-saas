@@ -1,24 +1,42 @@
 :root {
-  --color-bg: #f6f5f2;
-  --color-surface: #ffffff;
-  --color-ink: #12213d;
-  --color-ink-soft: #4a5568;
-  --color-ink-faint: #8a93a6;
-  --color-accent: #1f6f5c;
-  --color-accent-soft: #e4efec;
-  --color-warn: #b8860b;
-  --color-warn-soft: #f6efdd;
-  --color-risk: #9b3b3b;
-  --color-risk-soft: #f5e6e6;
-  --color-line: #d8d4cc;
+  --color-bg: #0b0d14;
+  --color-bg-deep: #0a0c12;
+  --color-header: #0f1219;
+  --color-surface: #12151f;
+  --color-surface-2: #171a26;
+  --color-surface-hover: #181b28;
+  --color-ink: #e8ebf2;
+  --color-ink-soft: #9aa3b8;
+  --color-ink-faint: #5a6376;
+  --color-ink-faintest: #4e5668;
+  --color-accent: #1a56db;
+  --color-accent-hover: #1749b8;
+  --color-accent-soft: rgba(26, 86, 219, 0.16);
+  --color-purple: #7c3aed;
+  --color-purple-hover: #6929d4;
+  --color-purple-soft: rgba(124, 58, 237, 0.16);
+  --color-link: #7c9cf5;
+  --color-warn: #f59e0b;
+  --color-warn-soft: rgba(245, 158, 11, 0.14);
+  --color-warn-ink: #fcd34d;
+  --color-risk: #ef4444;
+  --color-risk-soft: rgba(239, 68, 68, 0.14);
+  --color-risk-ink: #fca5a5;
+  --color-success: #10b981;
+  --color-success-soft: rgba(16, 185, 129, 0.14);
+  --color-success-ink: #6ee7b7;
+  --color-line: rgba(255, 255, 255, 0.07);
+  --color-line-strong: rgba(255, 255, 255, 0.09);
 
-  --font-display: "Fraunces", Georgia, serif;
-  --font-body: "IBM Plex Sans", -apple-system, sans-serif;
-  --font-mono: "IBM Plex Mono", "SF Mono", monospace;
+  --font-display: "Inter", system-ui, -apple-system, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "Inter", system-ui, -apple-system, sans-serif;
 
-  --radius: 3px;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 99px;
   --max-width: 880px;
-  --max-width-wide: 1120px;
+  --max-width-wide: 1240px;
 }
 
 * {
@@ -34,18 +52,23 @@ body {
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
-  color: var(--color-accent);
+  color: var(--color-link);
+  text-decoration: none;
+}
+a:hover {
+  color: #a5bcff;
 }
 
 h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   margin: 0 0 0.5em 0;
 }
 
@@ -60,7 +83,7 @@ h3 {
 }
 
 .mono {
-  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .page {
@@ -70,15 +93,15 @@ h3 {
 }
 
 .eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-ink-faint);
+  color: var(--color-purple);
   margin-bottom: 0.75rem;
 }
 
-/* Signatuur: ledger-joon, viide pangaväljavõtte rea eraldajale */
+/* Endine "ledger-rule" jääb kasutusse õhukese eraldusjoonena */
 .ledger-rule {
   position: relative;
   height: 1px;
@@ -86,8 +109,7 @@ h3 {
   margin: 2.5rem 0;
 }
 .ledger-rule::before,
-.ledger-rule::after,
-.ledger-rule span {
+.ledger-rule::after {
   content: "";
   position: absolute;
   top: -3px;
@@ -105,8 +127,9 @@ h3 {
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .card + .card {
@@ -115,18 +138,18 @@ h3 {
 
 .button {
   font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 500;
-  padding: 0.7rem 1.4rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--color-ink);
-  background: var(--color-ink);
-  color: var(--color-bg);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.65rem 1.2rem;
+  border-radius: 9px;
+  border: none;
+  background: var(--color-accent);
+  color: #ffffff;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: background 0.15s ease;
 }
 .button:hover {
-  opacity: 0.85;
+  background: var(--color-accent-hover);
 }
 .button:disabled {
   opacity: 0.4;
@@ -134,6 +157,11 @@ h3 {
 }
 .button.secondary {
   background: transparent;
+  color: var(--color-ink-soft);
+  border: 1px solid var(--color-line-strong);
+}
+.button.secondary:hover {
+  background: var(--color-surface-2);
   color: var(--color-ink);
 }
 
@@ -148,17 +176,19 @@ h3 {
   color: var(--color-ink-soft);
 }
 .field input,
-.field select {
-  font-family: var(--font-mono);
+.field select,
+.field textarea {
+  font-family: var(--font-body);
   font-size: 0.95rem;
-  padding: 0.55rem 0.7rem;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius);
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 9px;
   background: var(--color-surface);
   color: var(--color-ink);
 }
 .field input:focus,
-.field select:focus {
+.field select:focus,
+.field textarea:focus {
   outline: 2px solid var(--color-accent);
   outline-offset: 1px;
 }
@@ -184,49 +214,48 @@ h3 {
   gap: 0.75rem;
 }
 .score-number {
-  font-family: var(--font-mono);
   font-size: 3.2rem;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 .score-max {
-  font-family: var(--font-mono);
   color: var(--color-ink-faint);
   font-size: 1.1rem;
 }
 
 .badge {
   display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 0.25rem 0.6rem;
-  border-radius: var(--radius);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
 }
 .badge.risk-madal {
-  background: var(--color-accent-soft);
-  color: var(--color-accent);
+  background: var(--color-success-soft);
+  color: var(--color-success-ink);
 }
 .badge.risk-keskmine {
   background: var(--color-warn-soft);
-  color: var(--color-warn);
+  color: var(--color-warn-ink);
 }
 .badge.risk-kõrge {
   background: var(--color-risk-soft);
-  color: var(--color-risk);
+  color: var(--color-risk-ink);
 }
 .badge.status-ok {
-  background: var(--color-accent-soft);
-  color: var(--color-accent);
+  background: var(--color-success-soft);
+  color: var(--color-success-ink);
 }
 .badge.status-warning {
   background: var(--color-warn-soft);
-  color: var(--color-warn);
+  color: var(--color-warn-ink);
 }
 .badge.status-blocked {
   background: var(--color-risk-soft);
-  color: var(--color-risk);
+  color: var(--color-risk-ink);
 }
 
 .breakdown-row {
@@ -241,32 +270,75 @@ h3 {
   border-bottom: none;
 }
 .breakdown-row .points {
-  font-family: var(--font-mono);
   color: var(--color-ink-soft);
+  font-variant-numeric: tabular-nums;
 }
 
 .nav {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 1.5rem;
-  padding: 1.25rem 1.5rem;
+  padding: 0 1.75rem;
+  height: 60px;
+  background: var(--color-header);
   border-bottom: 1px solid var(--color-line);
-  font-family: var(--font-mono);
   font-size: 0.85rem;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 2.25rem;
+}
+.nav-links {
+  display: flex;
+  gap: 0.4rem;
 }
 .nav a {
   color: var(--color-ink-soft);
   text-decoration: none;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  font-weight: 500;
 }
 .nav a:hover {
   color: var(--color-ink);
+  background: var(--color-surface-2);
+}
+.nav a.active {
+  color: var(--color-ink);
+  background: var(--color-surface-2);
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.nav-mark {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-purple));
+  display: inline-block;
+}
+.button.small {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.82rem;
 }
 
 .error-box {
   background: var(--color-risk-soft);
   border: 1px solid var(--color-risk);
-  color: var(--color-risk);
+  color: var(--color-risk-ink);
   padding: 0.85rem 1rem;
-  border-radius: var(--radius);
+  border-radius: 10px;
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
@@ -293,21 +365,30 @@ h3 {
 }
 .numbered-steps li::before {
   content: counter(step, decimal-leading-zero);
-  font-family: var(--font-mono);
   color: var(--color-ink-faint);
   font-size: 0.85rem;
   flex-shrink: 0;
   padding-top: 0.15rem;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------------------------------------------------------------------- */
-/* Avaleht: laiem konteiner, kaheveeruline hero, statistikariba            */
+/* Avaleht / tööruum: laiem konteiner, 9-tile ruudustik, statistikariba    */
 /* ---------------------------------------------------------------------- */
 
 .page-wide {
   max-width: var(--max-width-wide);
   margin: 0 auto;
-  padding: 3rem 1.5rem 5rem;
+  padding: 4rem 1.75rem 5rem;
+}
+
+.workspace-header h1 {
+  font-size: 2.5rem;
+  letter-spacing: -0.03em;
+}
+.workspace-header p {
+  color: var(--color-ink-soft);
+  max-width: 560px;
 }
 
 .hero {
@@ -330,14 +411,13 @@ h3 {
 }
 .hero-visual {
   border: 1px solid var(--color-line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
   padding: 1.25rem 1.25rem 1rem;
 }
 .hero-visual-caption {
   display: flex;
   justify-content: space-between;
-  font-family: var(--font-mono);
   font-size: 0.7rem;
   color: var(--color-ink-faint);
   margin-top: 0.6rem;
@@ -372,12 +452,12 @@ h3 {
   padding-left: 1.5rem;
 }
 .stat-number {
-  font-family: var(--font-display);
   font-size: 2.1rem;
-  font-weight: 600;
+  font-weight: 700;
   display: block;
   line-height: 1;
   margin-bottom: 0.4rem;
+  color: var(--color-ink);
 }
 .stat-label {
   color: var(--color-ink-soft);
@@ -403,18 +483,19 @@ h3 {
 .segment-card {
   background: var(--color-surface);
   border: 1px solid var(--color-line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 1.75rem;
   text-decoration: none;
   color: inherit;
   display: block;
-  transition: border-color 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
 .segment-card:hover {
-  border-color: var(--color-ink);
+  border-color: rgba(124, 58, 237, 0.45);
+  background: var(--color-surface-2);
+  transform: translateY(-2px);
 }
 .segment-card .segment-meta {
-  font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--color-ink-faint);
   margin-top: 1rem;
@@ -422,33 +503,89 @@ h3 {
   border-top: 1px solid var(--color-line);
 }
 
-/* Nav bränd */
-.nav {
+/* 9-tile dokumendi-ruudustik (avaleht/tööruum) */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0 3rem;
+}
+@media (max-width: 900px) {
+  .tile-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .tile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tile {
+  display: block;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+.tile:hover {
+  background: var(--color-surface-hover);
+  border-color: rgba(124, 58, 237, 0.45);
+  transform: translateY(-3px);
+}
+.tile.tulemas {
+  opacity: 0.55;
+  cursor: default;
+}
+.tile.tulemas:hover {
+  transform: none;
+  border-color: var(--color-line);
+  background: var(--color-surface);
+}
+.tile-top {
+  display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
+  margin-bottom: 1.5rem;
 }
-.nav-left {
+.tile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--color-accent-soft);
+  color: var(--color-link);
   display: flex;
   align-items: center;
-  gap: 2rem;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
 }
-.nav-links {
-  display: flex;
-  gap: 1.5rem;
+.tile.purple .tile-avatar {
+  background: var(--color-purple-soft);
+  color: #a78bfa;
 }
-.nav-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  font-family: var(--font-display);
-  font-size: 1rem;
+.tile-badge {
+  font-size: 0.65rem;
   font-weight: 600;
-  color: var(--color-ink);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-line);
+  padding: 0.3rem 0.55rem;
+  border-radius: var(--radius-pill);
 }
-.nav-mark {
-  flex-shrink: 0;
+.tile h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.01em;
 }
-.button.small {
-  padding: 0.45rem 0.9rem;
+.tile p {
   font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-ink-soft);
+  margin: 0;
 }
