@@ -18,6 +18,7 @@
 
   --radius: 3px;
   --max-width: 880px;
+  --max-width-wide: 1120px;
 }
 
 * {
@@ -297,4 +298,157 @@ h3 {
   font-size: 0.85rem;
   flex-shrink: 0;
   padding-top: 0.15rem;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Avaleht: laiem konteiner, kaheveeruline hero, statistikariba            */
+/* ---------------------------------------------------------------------- */
+
+.page-wide {
+  max-width: var(--max-width-wide);
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  gap: 3rem;
+  align-items: center;
+  padding-bottom: 2.5rem;
+}
+.hero h1 {
+  font-size: 2.9rem;
+  line-height: 1.08;
+  max-width: 15ch;
+}
+.hero-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+  flex-wrap: wrap;
+}
+.hero-visual {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  padding: 1.25rem 1.25rem 1rem;
+}
+.hero-visual-caption {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-ink-faint);
+  margin-top: 0.6rem;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 860px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+  .hero-visual {
+    order: -1;
+    max-width: 420px;
+  }
+}
+
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+}
+.stat-strip > div {
+  padding: 1.5rem 1.5rem 1.5rem 0;
+  border-left: 1px solid var(--color-line);
+}
+.stat-strip > div:first-child {
+  border-left: none;
+  padding-left: 0;
+}
+.stat-strip > div + div {
+  padding-left: 1.5rem;
+}
+.stat-number {
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  font-weight: 600;
+  display: block;
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.stat-label {
+  color: var(--color-ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+@media (max-width: 640px) {
+  .stat-strip {
+    grid-template-columns: 1fr;
+  }
+  .stat-strip > div {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--color-line);
+    padding-top: 1.25rem;
+  }
+  .stat-strip > div:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+.segment-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.segment-card:hover {
+  border-color: var(--color-ink);
+}
+.segment-card .segment-meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-ink-faint);
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-line);
+}
+
+/* Nav bränd */
+.nav {
+  justify-content: space-between;
+  align-items: center;
+}
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.nav-mark {
+  flex-shrink: 0;
+}
+.button.small {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
 }
