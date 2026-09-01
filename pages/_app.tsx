@@ -16,6 +16,9 @@ export default function App({ Component, pageProps }: AppProps) {
             Finantsdisain AI
           </Link>
           <div className="nav-links">
+            <Link href="/tooruum" className={isActive("/tooruum") ? "active" : ""}>
+              Tööruum
+            </Link>
             <Link href="/vke" className={isActive("/vke") ? "active" : ""}>
               VKE
             </Link>
