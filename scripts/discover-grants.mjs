@@ -45,30 +45,76 @@ async function withBrowser(fn) {
   }
 }
 
-async function fetchRawViaPage(page, url) {
-  const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+async function fetchRawViaPage(page, url, retries = 1) {
+  let response;
+  try {
+    response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  } catch (err) {
+    console.error('  Laadimine ebaonnestus (erand): ' + url + ' - ' + err.message);
+    if (retries > 0) {
+      await page.waitForTimeout(3000);
+      return fetchRawViaPage(page, url, retries - 1);
+    }
+    return null;
+  }
   if (!response || response.status() >= 400) {
-    console.error('  Laadimine ebaonnestus: ' + url + ' (HTTP ' + (response ? response.status() : 'none') + ')');
+    const status = response ? response.status() : 'none';
+    const headers = response ? JSON.stringify(response.headers()) : '{}';
+    console.error('  Laadimine ebaonnestus: ' + url + ' (HTTP ' + status + ') headers=' + headers);
+    if (retries > 0) {
+      await page.waitForTimeout(3000);
+      return fetchRawViaPage(page, url, retries - 1);
+    }
     return null;
   }
   await page.waitForTimeout(1500);
-  return await response.text().catch(() => null);
+  const text = await response.text().catch(() => null);
+  console.log('  Laaditud ' + url + ' (' + (text ? text.length : 0) + ' baiti)');
+  return text;
 }
 
-async function fetchTextViaPage(page, url, waitMs = 3500) {
-  const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+async function fetchTextViaPage(page, url, waitMs = 3500, retries = 1) {
+  let response;
+  try {
+    response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  } catch (err) {
+    console.error('  Laadimine ebaonnestus (erand): ' + url + ' - ' + err.message);
+    if (retries > 0) {
+      await page.waitForTimeout(3000);
+      return fetchTextViaPage(page, url, waitMs, retries - 1);
+    }
+    return null;
+  }
   if (!response || response.status() >= 400) {
     console.error('  Laadimine ebaonnestus: ' + url + ' (HTTP ' + (response ? response.status() : 'none') + ')');
+    if (retries > 0) {
+      await page.waitForTimeout(3000);
+      return fetchTextViaPage(page, url, waitMs, retries - 1);
+    }
     return null;
   }
   await page.waitForTimeout(waitMs);
   return await page.innerText('body').catch(() => null);
 }
 
-async function fetchLinksViaPage(page, url, waitMs = 3500) {
-  const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+async function fetchLinksViaPage(page, url, waitMs = 3500, retries = 1) {
+  let response;
+  try {
+    response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  } catch (err) {
+    console.error('  Laadimine ebaonnestus (erand): ' + url + ' - ' + err.message);
+    if (retries > 0) {
+      await page.waitForTimeout(3000);
+      return fetchLinksViaPage(page, url, waitMs, retries - 1);
+    }
+    return [];
+  }
   if (!response || response.status() >= 400) {
     console.error('  Laadimine ebaonnestus: ' + url + ' (HTTP ' + (response ? response.status() : 'none') + ')');
+    if (retries > 0) {
+      await page.waitForTimeout(3000);
+      return fetchLinksViaPage(page, url, waitMs, retries - 1);
+    }
     return [];
   }
   await page.waitForTimeout(waitMs);
@@ -172,12 +218,18 @@ async function enumerateEuPortal(page) {
       form.append('text', new Blob(['"***"'], { type: 'application/json' }));
       form.append('pageSize', new Blob(['50'], { type: 'application/json' }));
       form.append('pageNumber', new Blob(['1'], { type: 'application/json' }));
+      // DATASOURCE=SEDIA on nouetav valjatoodete/hangete piirkonna paringutel,
+      // ilma selleta tagastab API mone paringu puhul HTTP 500 ilma diagnostikata.
+      form.append('DATASOURCE', new Blob(['"SEDIA"'], { type: 'application/json' }));
 
       const res = await fetch('https://api.tech.ec.europa.eu/search-api/prod/rest/search?apiKey=SEDIA', {
         method: 'POST',
         body: form,
       });
-      if (!res.ok) return { error: 'HTTP ' + res.status };
+      if (!res.ok) {
+        const bodyText = await res.text().catch(() => '');
+        return { error: 'HTTP ' + res.status + ' body=' + bodyText.slice(0, 300) };
+      }
       const json = await res.json();
       return { results: json.results || [] };
     } catch (err) {
@@ -251,7 +303,7 @@ Eesmärk: leida meetmed, mis on TÕENÄOLISELT asjakohased kas
 (a) Eesti väikese/keskmise ettevõtte (VKE) jaoks (nt käibevahend, seadmed, ekspordi arendus, tootearendus, energiatõhusus ettevõttele, digitaliseerimine) või
 (b) Eesti korteriühistu (KÜ) jaoks (nt hoone renoveerimine, energiatõhusus, kortermaja rekonstrueerimine, küttesüsteemid, elamufondi toetused).
 
-EI HUVITA: teadusasutuste/ülikoolide toetused, riigiasutuste/KOV-i haldustoetused, põllumajandustootja-spetsiifilised toetused (v.a kui sõnaselgelt puudutab ka väikeettevõtjat), suured EL-i teadus-konsortsiumi hanked, eraisiku (mitte-ettevõtja, mitte-KÜ) toetused, sotsiaaltoetused.
+EI HUVITA: teadusasutuste/ülikoolide toetused, riigiasutuste/KOV-i haldustoetused, põllumajandustootja-spetsiifilised toetused (v.a kui sõnaselgelt puudutab ka väikeettevõtjat üldiselt, mitte ainult põllumajandussektorit), kalandus- ja vesiviljelussektori-spetsiifilised toetused (kalalaevad, kalapüügiluba, vesiviljeluskasvandused, kalatöötlemine), muud kitsalt ühe tegevusloa/tegevusala taha piiratud niši-sektori toetused (nt laevandus, mäetööstus), suured EL-i teadus-konsortsiumi hanked, eraisiku (mitte-ettevõtja, mitte-KÜ) toetused, sotsiaaltoetused. Kui toetuse taotlejaks saab olla IGA ettevõtja mistahes tegevusalal, on see asjakohane; kui taotlejaks saab olla vaid ühe kindla sektori tegevusloaga ettevõtja, on see EI HUVITA.
 
 Nimekiri (indeks. "pealkiri" -> URL):
 ${listing}
@@ -325,7 +377,8 @@ Väljasta AINULT JSON objekt (ilma markdown-koodiplokita), täpselt selle strukt
   "last_verified": "${today}"
 }
 
-Kui mõni väli pole lehelt tuvastatav, kasuta null (numbrite/kuupäevade puhul) või tühja stringi/massiivi. ÄRA VÄLJAMÕTLE andmeid.`;
+Kui mõni väli pole lehelt tuvastatav, kasuta null (numbrite/kuupäevade puhul) või tühja stringi/massiivi. ÄRA VÄLJAMÕTLE andmeid.
+max_amount_eur peab olema toetuse maksimaalne summa TÄISELT EURODES (mitte tuhandetes, mitte protsent, mitte pindala- või ühikuhind). Kui lehel on ainult ühikuhind (nt "eurot/m2" või "eurot/kW") või eelarve on toodud ilma selge ülempiirita ühe taotluse kohta, kasuta null. Ära väljasta väärtust, mis on alla 1000, välja arvatud juhul, kui leht sõnaselgelt kinnitab, et see ongi maksimaalne toetussumma taotluse kohta.`;
 
   let raw;
   try {
