@@ -4,56 +4,54 @@
     "name": "Starditoetus",
     "provider": "EIS (Ettevõtluse ja Innovatsiooni Sihtasutus, endine EAS)",
     "target_segment": "vke",
-    "status": "open",
+    "status": "closed",
     "round_opens": null,
-    "round_closes": null,
-    "round_notes": "Jooksev meede, täpsed taotlusvooru kuupäevad tuleb kontrollida eis.ee lehelt.",
-    "max_amount_eur": 20000,
+    "round_closes": "2022-08-31",
+    "round_notes": "Taotlusvoor SULETUD. Taotlemine lõppes 31.08.2022. Starditoetuse taotlemine avatakse uuesti 2023.a. – rahastust hakkab andma EASi ja KredExi ühendasutus. Uue meetme tingimused on väljatöötamisel.",
+    "max_amount_eur": 15000,
     "funding_rate": "80% projekti maksumusest (omafinantseering vähemalt 20%)",
     "requirements": [
-      "Kuni 24 kuud tegutsenud äriregistrisse kantud äriühing",
-      "Alla 10 töötaja",
-      "Müügitulu jooksval aastal ei ületa 40 000 EUR (Tallinn/Tartu: käibenõue 80 000 EUR 2 aasta jooksul, mujal 40 000 EUR)",
-      "Ei ole varem saanud EAS-i stardi- ja/või kasvutoetust",
-      "Osaline isik ei oma üle 25% ettevõttest",
-      "Kohustus luua vähemalt 1 täiskohaga töökoht"
+      "Alustaval ettevõtja, kelle ettevõtte asutamisest ei ole möödas rohkem kui 24 kuud",
+      "Kohustuslik läbida eelnõustamine ja saada eelhinnang kohalikus maakondlikus arenduskeskuses enne taotluse esitamist",
+      "Kohustus saavutada tulemused: töökohtade loomine ja müügitulu kasv"
     ],
-    "description": "Toetus alustavale ettevõttele kasvu ja töökohtade loomiseks. Makstakse kahes osas: 15 000 EUR pärast töökoha loomist, 5 000 EUR kahe aasta möödudes tingimuste täitmisel.",
+    "description": "Toetus arengupotentsiaaliga, alustavate ettevõtete loomiseks, mille kaudu laiendatakse piirkondlikku ettevõtlust ja eksportijate ridu. Toetuse eesmärk on aidata alustaval ettevõtjal käivitada ettevõte äriplaanis kirjeldatud viisil ja jõuda soovitud tulemuseni.",
     "source_url": "https://www.rtk.ee/meede-alustava-ettevotja-starditoetus",
-    "last_verified": "2026-08-30"
+    "last_verified": "2026-09-13"
   },
   {
     "id": "eis-tootearendustootaja-toetus",
     "name": "Ettevõtja teadus- ja arendustöötaja toetus",
     "provider": "EIS",
     "target_segment": "vke",
-    "status": "open",
+    "status": "closed",
     "round_opens": "2026-08-11T09:00:00+03:00",
     "round_closes": "2026-09-07T16:00:00+03:00",
-    "round_notes": "5. taotlusvoor, perioodi 01.01.2026-30.06.2026 kohta.",
+    "round_notes": "5. taotlusvoor lõppenud. Järgmine voor avatakse 2027. aasta veebruaris.",
     "max_amount_eur": null,
-    "funding_rate": "Vähese tähtsusega abi (de minimis)",
+    "funding_rate": "Kuni 50% T&A töötajale makstud tulumaksust",
     "requirements": [
       "Äriregistrisse kantud ettevõte",
       "Vähemalt 1 teadus- ja arendustöötaja",
       "Ei ole saanud de minimis abi üle 300 000 EUR viimase 3 aasta jooksul",
-      "Taotlus esitatakse E-toetuse keskkonnas, ainult eesti keeles"
+      "T&A töötaja on töötanud vähemalt 3 kuud perioodil 01.01.2026-30.06.2026",
+      "Ettevõte on deklareerinud sotsiaalmaksu ja tulumaksu Maksu- ja Tolliametile"
     ],
-    "description": "Toetab T&A töötajate värbamist ja hoidmist, eesmärgiga suurendada erasektori T&A mahtu. Kolmeaastane pilootmeede.",
+    "description": "Toetab T&A töötajate värbamist ja hoidmist, eesmärgiga suurendada erasektori T&A mahtu. Kolmeaastane pilootmeede. Toetus makstakse Maksu- ja Tolliameti andmete põhjal.",
     "source_url": "https://eis.ee/en/services/grant-for-companies-research-and-development-employees/",
-    "last_verified": "2026-08-30"
+    "last_verified": "2026-09-13"
   },
   {
     "id": "eis-ky-rekonstrueerimistoetus",
     "name": "Korterelamu rekonstrueerimistoetus",
     "provider": "EIS (KredEx)",
     "target_segment": "ky",
-    "status": "open",
+    "status": "closed",
     "round_opens": null,
     "round_closes": null,
-    "round_notes": "Mitmeaastane programm (2022-2027). Täpsed taotlusvooru tähtajad ja eelarve jääk tuleb kontrollida eis.ee lehelt — voorud võivad sulguda eelarve ammendumisel enne ametlikku tähtaega.",
+    "round_notes": "Mitmeaastane programm (2022-2027), kogueelarve 330 miljonit eurot. Kolmas vooru avati 15.09.2025 ja suleti 15.10.2025. Teise vooru mõned alamvoorud jätkuvad: Hiiu maakond (eelarve 6M€), Ida-Viru maakond (eelarve 10M€), Suured korterelamud (eelarve 20M€) - avatud kuni 01.10.2025 või kuni raha otsa saab.",
     "max_amount_eur": 1000000,
-    "funding_rate": "30% Tallinnas ja Tartus / 40% piirkondades kus kinnisvara turuväärtus >500 EUR/m² / 50% ülejäänud Eestis",
+    "funding_rate": "kuni 50% sõltuvalt regioonist",
     "requirements": [
       "Korterelamu ehitatud enne 2000. aastat",
       "Vähemalt 80% korteriomanditest füüsiliste isikute (või riigi/KOV) omandis",
@@ -61,8 +59,8 @@
       "Üldkoosoleku otsus rekonstrueerimise ja toetuse taotlemise kohta",
       "Soovitatav: energiaaudit lähtedokumendina enne taotlust"
     ],
-    "description": "Suurim ja tuntuim EIS/KredEx meede korterelamute terviklikuks rekonstrueerimiseks: fassaad, katus, aknad, küte, ventilatsioon, lift, keldri soojustus.",
+    "description": "Suurim ja tuntuim EIS/KredEx meede korterelamute terviklikuks rekonstrueerimiseks: fassaad, katus, aknad, küte, ventilatsioon, lift, keldri soojustus. Toetab ka eraldi tegevusena gaasikütte, ahjukütte või elektrikütte asendamist taastuvenergial põhinevate küttesüsteemidega või korterelamute liitmist kaugküttevõrguga.",
     "source_url": "https://eis.ee/en/services/kodudkorda/",
-    "last_verified": "2026-08-30"
+    "last_verified": "2026-09-13"
   }
 ]
