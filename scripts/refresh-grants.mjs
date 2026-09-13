@@ -29,11 +29,19 @@ function stripHtml(html) {
 
 async function fetchSourceText(url) {
   try {
-    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (grants-refresh-bot)' } });
-    if (!res.ok) return null;
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36' },
+      redirect: "follow",
+    });
+    if (!res.ok) {
+      console.error('Fetch ebaonnestus (' + url + '): HTTP ' + res.status + ' ' + res.statusText);
+      return null;
+    }
     const html = await res.text();
+    console.log('Laetud ' + url + ' - ' + html.length + ' baiti toorest HTML-i');
     return stripHtml(html);
-  } catch {
+  } catch (err) {
+    console.error('Fetch viga (' + url + '): ' + (err && err.message ? err.message : String(err)));
     return null;
   }
 }
@@ -104,6 +112,7 @@ async function main() {
 
   const updated = [];
   for (const grant of grants) {
+    console.log('--- ' + grant.id + ' ---');
     const sourceText = await fetchSourceText(grant.source_url);
     let next;
     try {
@@ -116,6 +125,7 @@ async function main() {
 
     const sameContent = deepEqualExcept(grant, next, ['last_verified']);
     if (next.last_verified !== grant.last_verified) anyChange = true;
+    console.log(grant.id + ': last_verified ' + grant.last_verified + ' -> ' + next.last_verified + ', sisu muutus: ' + !sameContent);
 
     if (!sameContent) {
       materialChange = true;
