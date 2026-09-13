@@ -1,0 +1,43 @@
+name: Discover new grants
+
+on:
+  schedule:
+    - cron: "0 6 1 * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Playwright
+        run: |
+          npm install playwright@1.47.0
+          npx playwright install --with-deps chromium
+
+      - name: Run grants discovery
+        id: discover
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/discover-grants.mjs
+
+      - name: Create PR with discovered candidates
+        if: steps.discover.outputs.has_candidates == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "data: add discovered grant candidates for review"
+          title: "Uued toetusmeetme kandidaadid - vajab ulevaatust"
+          body: ${{ steps.discover.outputs.pr_body }}
+          branch: grants-discover/auto
+          add-paths: api/grants/data.discovered.json
