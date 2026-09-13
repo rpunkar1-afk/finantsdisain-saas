@@ -21,6 +21,11 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Install Playwright
+        run: |
+          npm install playwright@1.47.0
+          npx playwright install --with-deps chromium
+
       - name: Run grants refresh
         id: refresh
         env:
