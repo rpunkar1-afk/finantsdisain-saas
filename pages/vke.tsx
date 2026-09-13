@@ -145,6 +145,21 @@ export default function VKE() {
       <h1>Finantsvalmiduse hindamine</h1>
 
       <div className="card">
+  <p className="text-soft" style={{ marginTop: 0 }}>
+    Pole kindel, kas täisanalüüs on praegu mõttekas? Täitke 2-minutiline eelkvalifitseerimise
+    vorm — saate kiire suuna, kuhu edasi minna.
+  </p>
+  <a
+    className="button secondary small"
+    href="https://tally.so/r/J9j4ld"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Kiirvorm →
+  </a>
+</div>
+
+<div className="card">
         <h3>1. Pangaväljavõte (valikuline, abistav)</h3>
         <UploadPDF onComplete={handleUploadComplete} />
         {normalized && (
