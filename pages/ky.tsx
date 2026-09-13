@@ -93,6 +93,21 @@ export default function KY() {
       <div className="eyebrow">Korteriühistu</div>
       <h1>KÜ valmisoleku kontroll</h1>
 
+        <div className="card">
+          <p className="text-soft" style={{ marginTop: 0 }}>
+            Pole kindel, kas täisanalüüs on praegu mõttekas? Täitke 2-minutiline eelkvalifitseerimise
+            vorm — saate kiire suuna, kuhu edasi minna.
+          </p>
+          <a
+            className="button secondary small"
+            href="https://tally.so/r/9q0pgQ"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Kiirvorm →
+          </a>
+        </div>
+
       <form onSubmit={handleSubmit}>
         <div className="card">
           <div className="field">
