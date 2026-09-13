@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 // Kontrollib api/grants/data.json kirjete allikaid (source_url) ja uuendab andmed.
+// Kasutab Playwright headless Chromiumit (mitte fetch), kuna allikad (eis.ee, rtk.ee)
+// blokeerivad lihtsaid HTTP paringuid (403 Forbidden / bot-tõrje).
 // Valjund: GITHUB_OUTPUT muutujad any_change, material_change, pr_body.
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { chromium } from 'playwright';
 
 const DATA_PATH = path.join(process.cwd(), 'api/grants/data.json');
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
@@ -16,32 +19,34 @@ if (!ANTHROPIC_API_KEY) {
 
 const today = new Date().toISOString().slice(0, 10);
 
-function stripHtml(html) {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 15000);
-}
-
 async function fetchSourceText(url) {
+  let browser;
   try {
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36' },
-      redirect: "follow",
+    browser = await chromium.launch();
+    const context = await browser.newContext({
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+      locale: 'et-EE',
     });
-    if (!res.ok) {
-      console.error('Fetch ebaonnestus (' + url + '): HTTP ' + res.status + ' ' + res.statusText);
+    const page = await context.newPage();
+    const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForTimeout(4000);
+    const status = response ? response.status() : null;
+    if (!response || status >= 400) {
+      console.error('Fetch ebaonnestus (' + url + '): HTTP ' + status);
+      await browser.close();
       return null;
     }
-    const html = await res.text();
-    console.log('Laetud ' + url + ' - ' + html.length + ' baiti toorest HTML-i');
-    return stripHtml(html);
+    const text = await page.innerText('body').catch(() => null);
+    await browser.close();
+    if (!text || text.length < 200) {
+      console.error('Fetch andis liiga vahe sisu (' + url + '): ' + (text ? text.length : 0) + ' marki');
+      return null;
+    }
+    console.log('Laetud ' + url + ' - ' + text.length + ' marki teksti (HTTP ' + status + ')');
+    return text.replace(/\s+/g, ' ').trim().slice(0, 15000);
   } catch (err) {
     console.error('Fetch viga (' + url + '): ' + (err && err.message ? err.message : String(err)));
+    if (browser) await browser.close().catch(() => {});
     return null;
   }
 }
