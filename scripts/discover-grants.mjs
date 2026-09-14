@@ -130,20 +130,40 @@ async function fetchLinksViaPage(page, url, waitMs = 3500, retries = 1) {
 // Iga funktsioon tagastab: [{ source, title, url, statusHint }]
 
 async function enumerateEis(page) {
-  const xml = await fetchRawViaPage(page, 'https://eis.ee/teenus-sitemap.xml');
-  if (!xml) return [];
-  const urls = [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1]);
-  const seen = new Set();
-  const out = [];
-  for (const u of urls) {
-    if (u.includes('/en/services/') || u.includes('/ru/uslugi/')) continue;
-    if (!u.includes('/teenused/')) continue;
-    if (seen.has(u)) continue;
-    seen.add(u);
-    const slug = u.split('/').filter(Boolean).pop() || u;
-    out.push({ source: 'EIS', title: slug.replace(/-/g, ' '), url: u, statusHint: 'unknown' });
-  }
-  return out;
+    const xml = await fetchRawViaPage(page, 'https://eis.ee/teenus-sitemap.xml');
+    if (!xml) return [];
+    // 2026-09-14 diagnostika: reaalsest brauserist (mitte GitHub Actionsi runnerilt)
+    // laaditud sitemap on 228 <loc> kirjega, ~31KB, algab "<?xml version..." paringuga
+    // ilma erilise User-Agent'ita voi peatega. GitHub Actionsi runnerilt tuli varem
+    // HTTP 200 vastus, mis oli 44KB ja sisaldas 0 <loc> kirjet - see viitab, et
+    // eis.ee tuvastab Actionsi andmekeskuse IP-vahemiku ja tagastab reaalse sitemapi
+    // asemel mingi vahelehe (boti tuvastus / valjakutse), ilma HTTP veakoodita.
+    // See EI ole regexi ega parsimise viga - see on infrastruktuuri tasandi
+    // blokeering, mida skriptist ei saa parandada. Allolev kontroll ei "paranda"
+    // seda, vaid muudab tulevased ebaonnestumised diagnoositavaks (varem oli
+    // vaikimisi tulemus "0 kirjet" ilma pohjuseta).
+    if (!xml.includes('<loc>')) {
+          console.error(
+                  '  EIS HOIATUS: vastus ei sisalda uhtegi <loc> silti (' +
+                    xml.length +
+                    ' baiti) - toenaoliselt boti-tuvastus/valjakutse lehekylg, mitte tegelik sitemap. ' +
+                    'Esimesed 200 marki: ' +
+                    xml.slice(0, 200).replace(/\s+/g, ' ')
+                );
+          return [];
+    }
+    const urls = [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1]);
+    const seen = new Set();
+    const out = [];
+    for (const u of urls) {
+          if (u.includes('/en/services/') || u.includes('/ru/uslugi/')) continue;
+          if (!u.includes('/teenused/')) continue;
+          if (seen.has(u)) continue;
+          seen.add(u);
+          const slug = u.split('/').filter(Boolean).pop() || u;
+          out.push({ source: 'EIS', title: slug.replace(/-/g, ' '), url: u, statusHint: 'unknown' });
+    }
+    return out;
 }
 
 async function enumerateRtk(page) {
@@ -194,65 +214,82 @@ async function enumerateKik(page) {
 }
 
 async function enumerateEuPortal(page) {
-  // SEDIA search API nouab POST multipart/form-data paringut, mida ei saa lihtsa
-  // page.goto()-ga teha. Kasutame page.evaluate() sees fetch()-i, mis jookseb
-  // brauseri kontekstis (paistab paringute tegijale reaalse brauseri paringuna).
-  await page.goto('https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/home', {
-    waitUntil: 'domcontentloaded',
-    timeout: 30000,
-  }).catch(() => null);
-  await page.waitForTimeout(1500);
+    // 2026-09-14 diagnostika (Playwright kaudu paringute testimine reaalses brauseris,
+    // mitte GitHub Actions runnerilt): endine multipart/form-data + DATASOURCE=SEDIA
+    // kuju tagastas HTTP 500 "An internal error occurred" ka reaalsest brauserist
+    // paringuna - see EI OLNUD IP/bot-blokeering, vaid vale paringu kuju. Portaali
+    // enda otsing (vaadeldud vorgupaneelist) saadab lihtsa JSON body kujul paringu:
+    // POST .../search?apiKey=SEDIA&text=...&pageSize=...&pageNumber=... ,
+    // Content-Type: application/json, body: {"query": {...}}.
+    //
+    // TEADMATA (andmed puuduvad): reaalse "query" filtri DSL (mis filtreerib
+    // avatud/eelseisvad "calls for proposals" kirjed) - testitud bool/must/terms
+    // kujud (type/status vaelja nimedega) EI mojuta totalResults-i uldse (API
+    // eirab tundmatut struktuuri vaikimisi, tagastab kogu andmebaasi vaste).
+    // Uldine tekstiotsing "***" voi vabateksti margasonadega ei taba topic-details
+    // kirjeid (avatud tooetusmeetmeid) - need paistavad vajavat spetsiifilist,
+    // dokumenteerimata paringu struktuuri, mida ei onnestunud reaalse kasutaja
+    // brauseripaeringu body't puudutamata tuvastada (vorgumonitor ei nayta POST
+    // body't). Seega allpool olev fix kaotab HTTP 500 crashi, kuid EI taga
+    // sisuliselt kasutatavaid tulemusi - filtreerimine jaab lahendamata kuni
+    // keegi saab kaette EU portaali enda paringu tegeliku body (nt DevTools
+    // Network tab käsitsi + "Copy as fetch").
+    await page.goto('https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/home', {
+          waitUntil: 'domcontentloaded',
+          timeout: 30000,
+    }).catch(() => null);
+    await page.waitForTimeout(1500);
 
-  const result = await page.evaluate(async () => {
-    try {
-      const query = {
-        bool: {
-          must: [
-            { terms: { type: ['1'] } },
-            { terms: { status: ['31094501', '31094502'] } },
-          ],
-        },
-      };
-      const form = new FormData();
-      form.append('query', new Blob([JSON.stringify(query)], { type: 'application/json' }));
-      form.append('text', new Blob(['"***"'], { type: 'application/json' }));
-      form.append('pageSize', new Blob(['50'], { type: 'application/json' }));
-      form.append('pageNumber', new Blob(['1'], { type: 'application/json' }));
-      // DATASOURCE=SEDIA on nouetav valjatoodete/hangete piirkonna paringutel,
-      // ilma selleta tagastab API mone paringu puhul HTTP 500 ilma diagnostikata.
-      form.append('DATASOURCE', new Blob(['"SEDIA"'], { type: 'application/json' }));
+    const result = await page.evaluate(async () => {
+          try {
+                  const query = {
+                            bool: {
+                                        must: [
+                                          { terms: { type: ['1'] } },
+                                          { terms: { status: ['31094501', '31094502'] } },
+                                                    ],
+                            },
+                  };
+                  const res = await fetch(
+                            'https://api.tech.ec.europa.eu/search-api/prod/rest/search?apiKey=SEDIA&text=%22***%22&pageSize=100&pageNumber=1',
+                    {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ query }),
+                    }
+                          );
+                  if (!res.ok) {
+                            const bodyText = await res.text().catch(() => '');
+                            return { error: 'HTTP ' + res.status + ' body=' + bodyText.slice(0, 300) };
+                  }
+                  const json = await res.json();
+                  return { results: json.results || [], totalResults: json.totalResults };
+          } catch (err) {
+                  return { error: String(err) };
+          }
+    });
 
-      const res = await fetch('https://api.tech.ec.europa.eu/search-api/prod/rest/search?apiKey=SEDIA', {
-        method: 'POST',
-        body: form,
-      });
-      if (!res.ok) {
-        const bodyText = await res.text().catch(() => '');
-        return { error: 'HTTP ' + res.status + ' body=' + bodyText.slice(0, 300) };
-      }
-      const json = await res.json();
-      return { results: json.results || [] };
-    } catch (err) {
-      return { error: String(err) };
+    if (result.error) {
+          console.error('  EL portaali paring ebaonnestus: ' + result.error);
+          return [];
     }
-  });
-
-  if (result.error) {
-    console.error('  EL portaali paring ebaonnestus: ' + result.error);
-    return [];
-  }
-  const out = [];
-  for (const r of result.results || []) {
-    const m = r.metadata || {};
-    const title = Array.isArray(m.title) ? m.title[0] : m.title;
-    const identifier = Array.isArray(m.identifier) ? m.identifier[0] : m.identifier;
-    if (!title || !identifier) continue;
-    const url =
-      'https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/' +
-      identifier;
-    out.push({ source: 'EL_PORTAL', title, url, statusHint: 'open' });
-  }
-  return out;
+    if (result.totalResults && result.totalResults > 100000) {
+          console.error(
+                  '  EL portaali paring HOIATUS: query-filter ei toiminud (totalResults=' +
+                    result.totalResults +
+                    ', tagastati filtreerimata koguandmebaas). Kandidaate ei loendata seni, kuni filtri DSL on kinnitatud.'
+                );
+          return [];
+    }
+    const out = [];
+    for (const r of result.results || []) {
+          if (!r.url || !r.url.includes('/topic-details/')) continue;
+          const m = r.metadata || {};
+          const title = Array.isArray(m.title) ? m.title[0] : m.title;
+          if (!title) continue;
+          out.push({ source: 'EL_PORTAL', title, url: r.url, statusHint: 'open' });
+    }
+    return out;
 }
 
 // ---------- Anthropic API abifunktsioonid ----------
