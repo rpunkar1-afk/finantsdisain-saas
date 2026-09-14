@@ -98,23 +98,30 @@ function computeScore(rules: ScoringRule[], input: ScoringInput): ScoringResult 
     throw new Error(parts.join(" | "));
   }
 
-  const score = breakdown.reduce((sum, b) => sum + b.points, 0);
+    const score = breakdown.reduce((sum, b) => sum + b.points, 0);
 
-  const risk_level: RiskLevel =
-    score >= RISK_THRESHOLDS.madal
-      ? "madal"
-      : score >= RISK_THRESHOLDS.keskmine
-        ? "keskmine"
-        : "kõrge";
+    const strengths = breakdown
+      .filter((b) => b.weight > 0 && b.points / b.weight >= STRENGTH_RATIO)
+      .map((b) => `${b.label}: ${b.bandLabel}`);
 
-  const strengths = breakdown
-    .filter((b) => b.weight > 0 && b.points / b.weight >= STRENGTH_RATIO)
-    .map((b) => `${b.label}: ${b.bandLabel}`);
+    const weaknesses = breakdown
+      .filter((b) => b.weight > 0 && b.points / b.weight <= WEAKNESS_RATIO)
+      .map((b) => `${b.label}: ${b.bandLabel}`);
 
-  const weaknesses = breakdown
-    .filter((b) => b.weight > 0 && b.points / b.weight <= WEAKNESS_RATIO)
-    .map((b) => `${b.label}: ${b.bandLabel}`);
+    // Gate-reegel: koondskoor üksi ei tohi anda "madal" riski, kui mõni
+    // üksiknäitaja on eraldiseisvalt nõrk (<=30% max punktidest). See väldib
+    // olukorda, kus üks kriitiliselt nõrk näitaja (nt käibetrend) kaob
+    // paljude heade näitajate summasse ära. "Madal" risk nõuab nii koondskoori
+    // >= lävendit KUI ka nulli nõrkust üksiknäitajate tasandil.
+    const hasWeakness = weaknesses.length > 0;
 
+    const risk_level: RiskLevel =
+          score >= RISK_THRESHOLDS.madal && !hasWeakness
+        ? "madal"
+            : score >= RISK_THRESHOLDS.keskmine
+          ? "keskmine"
+              : "kõrge";
+  
   return { score, risk_level, strengths, weaknesses, breakdown };
 }
 
