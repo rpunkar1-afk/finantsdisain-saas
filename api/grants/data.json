@@ -17,7 +17,7 @@
     ],
     "description": "Toetus arengupotentsiaaliga, alustavate ettevõtete loomiseks, mille kaudu laiendatakse piirkondlikku ettevõtlust ja eksportijate ridu. Toetuse eesmärk on aidata alustaval ettevõtjal käivitada ettevõte äriplaanis kirjeldatud viisil ja jõuda soovitud tulemuseni.",
     "source_url": "https://www.rtk.ee/meede-alustava-ettevotja-starditoetus",
-    "last_verified": "2026-09-14"
+    "last_verified": "2026-09-21"
   },
   {
     "id": "eis-tootearendustootaja-toetus",
@@ -39,7 +39,7 @@
     ],
     "description": "Toetab T&A töötajate värbamist ja hoidmist, eesmärgiga suurendada erasektori T&A mahtu. Kolmeaastane pilootmeede. Toetus makstakse Maksu- ja Tolliameti andmete põhjal.",
     "source_url": "https://eis.ee/en/services/grant-for-companies-research-and-development-employees/",
-    "last_verified": "2026-09-14"
+    "last_verified": "2026-09-21"
   },
   {
     "id": "eis-ky-rekonstrueerimistoetus",
@@ -61,6 +61,6 @@
     ],
     "description": "Suurim ja tuntuim EIS/KredEx meede korterelamute terviklikuks rekonstrueerimiseks: fassaad, katus, aknad, küte, ventilatsioon, lift, keldri soojustus. Toetab ka eraldi tegevusena gaasikütte, ahjukütte või elektrikütte asendamist taastuvenergial põhinevate küttesüsteemidega või korterelamute liitmist kaugküttevõrguga.",
     "source_url": "https://eis.ee/en/services/kodudkorda/",
-    "last_verified": "2026-09-14"
+    "last_verified": "2026-09-21"
   }
 ]
