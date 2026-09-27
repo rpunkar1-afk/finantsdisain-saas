@@ -9,19 +9,19 @@ interface Tile {
 }
 
 const TILES: Tile[] = [
-  { letter: "Ä", title: "Äriplaan", description: "Täismahus plaan pangale või investorile, 20–30 lk.", color: "blue", href: "/tools/ariplaan" },
-  { letter: "F", title: "Finantsprognoos", description: "3 aasta kasumiaruanne, bilanss ja rahavoog.", color: "purple", href: "/tools/finantsprognoos" },
+  { letter: "Ä", title: "Äriplaan", description: "Pangale või investorile: kokkuvõte, äriidee ja turg, meeskond, rahastusvajadus.", color: "blue", href: "/tools/ariplaan" },
+  { letter: "F", title: "Finantsprognoos", description: "3 aasta käibe- ja kasumiprognoos Excelis päris valemitega.", color: "purple", href: "/tools/finantsprognoos" },
   { letter: "R", title: "Riskianalüüs", description: "Riskid, mõju, tõenäosus ja leevendusmeetmed.", color: "blue", href: "/tools/riskianaluus" },
   { letter: "K", title: "KPI raport", description: "Juhtimisarvestuse ülevaade kuu või kvartali kohta.", color: "purple", href: "/tools/kpi-raport" },
   {
     letter: "P",
     title: "Projektitaotlus",
-    description: "Üldkoosoleku otsus, hooldusfond, energiamärgis — tee KredEx/EIS taotluseni.",
+    description: "Üldkoosoleku otsus, hooldusfond, energiamärgis — tee EIS taotluseni.",
     color: "purple",
     href: "/ky",
   },
   { letter: "S", title: "SWOT", description: "Tugevused, nõrkused, võimalused, ohud.", color: "blue", href: "/tools/swot" },
-  { letter: "I", title: "Investoripitch", description: "12 slaidi koos numbritega ja küsimusega.", color: "purple", href: "/tools/investoripitch" },
+  { letter: "I", title: "Investoripitch", description: "Investoripakkumine koos numbrite ja rahastusküsimusega (PDF).", color: "purple", href: "/tools/investoripitch" },
   {
     letter: "D",
     title: "Finantsdiagnostika",
@@ -29,7 +29,7 @@ const TILES: Tile[] = [
     color: "blue",
     href: "/vke",
   },
-  { letter: "C", title: "Rahavoo mudel", description: "12 kuu likviidsusvaade koos stsenaariumitega.", color: "blue", href: "/tools/rahavoo-mudel" },
+  { letter: "C", title: "Rahavoo mudel", description: "12 kuu likviidsusvaade Excelis päris valemitega.", color: "blue", href: "/tools/rahavoo-mudel" },
 ];
 
 function TileCard({ tile }: { tile: Tile }) {
@@ -102,7 +102,7 @@ export default function Tooruum() {
         <li>Laadige üles pangaväljavõte (VKE) või vastake KÜ küsimustikule.</li>
         <li>Saate deterministliku 0–100 skoori ja riskitaseme koos põhjendusega.</li>
         <li>Saate prioriseeritud tegevuskava nõrkade kohtade parandamiseks.</li>
-        <li>Vaadake sobivaid KredEx/EIS toetusprogramme.</li>
+        <li>Vaadake sobivaid toetusprogramme (EIS, RTK, PRIA, KIK).</li>
         <li>Genereerige lõplik raport taotluse ettevalmistamiseks.</li>
       </ol>
     </div>

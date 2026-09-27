@@ -35,6 +35,8 @@ interface ResponseBody {
   readyToGenerate: boolean;
 }
 
+const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
+
 const TOOLS: Anthropic.Tool[] = [
   {
     name: "select_document_type",
@@ -99,7 +101,7 @@ export default async function handler(req: Request): Promise<Response> {
   let message;
   try {
     message = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
+      model: MODEL,
       max_tokens: 500,
       system: systemPrompt,
       tools: TOOLS,
@@ -151,10 +153,54 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   result.reply = textParts.join("\n").trim();
+
+  // Kui Claude kutsus ainult tööriista ja ei kirjutanud teksti, jääks kasutaja ilma
+  // järgmise küsimuseta. Teine kutse (tool_result + tool_choice "none") sunnib
+  // Peetrit sõnastama järgmise sammu uue oleku põhjal.
   if (!result.reply) {
-    result.reply = result.documentTypeId && result.documentTypeId !== body.documentTypeId
-      ? "Selge, jätkame sellega."
-      : "Jätkame.";
+    const toolUses = message.content.filter(
+      (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
+    );
+    if (toolUses.length > 0) {
+      try {
+        const mergedCollected = { ...collected, ...result.fieldUpdates };
+        const followUpSystem = result.documentTypeId
+          ? buildCollectionSystemPrompt(result.documentTypeId, mergedCollected)
+          : buildMenuSystemPrompt();
+        const followUp = await anthropic.messages.create({
+          model: MODEL,
+          max_tokens: 500,
+          system: followUpSystem,
+          tools: TOOLS,
+          tool_choice: { type: "none" },
+          messages: [
+            ...body.messages.map((m) => ({ role: m.role, content: m.content })),
+            { role: "assistant", content: message.content },
+            {
+              role: "user",
+              content: toolUses.map((t) => ({
+                type: "tool_result" as const,
+                tool_use_id: t.id,
+                content: toolResultText(t, result),
+              })),
+            },
+          ],
+        });
+        result.reply = followUp.content
+          .filter((b): b is Anthropic.TextBlock => b.type === "text")
+          .map((b) => b.text)
+          .join("\n")
+          .trim();
+      } catch (err) {
+        console.error("Peetri järelkutse ebaõnnestus:", err);
+      }
+    }
+  }
+
+  if (!result.reply) {
+    result.reply = result.pendingConfirmation
+      ? "Palun kinnita allolev väärtus."
+      : "Andmed puuduvad. Kirjelda palun täpsemalt.";
   }
 
   if (result.documentTypeId) {
@@ -168,6 +214,19 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   return jsonResponse(result, 200);
+}
+
+function toolResultText(tool: Anthropic.ToolUseBlock, result: ResponseBody): string {
+  if (tool.name === "select_document_type") {
+    return result.documentTypeId
+      ? `Valitud dokumenditüüp: ${result.documentTypeId}. Küsi esimest puuduvat välja.`
+      : "Tundmatu dokumenditüüp. Täpsusta kasutajalt vajadust.";
+  }
+  const input = tool.input as { field_id?: string };
+  if (result.pendingConfirmation && result.pendingConfirmation.field_id === input.field_id) {
+    return "Arvväärtus ootab kasutaja kinnitust. Palu kasutajal allolev väärtus kinnitada; ära küsi järgmist välja.";
+  }
+  return "Salvestatud. Küsi järgmist puuduvat välja.";
 }
 
 function jsonResponse(body: unknown, status: number): Response {
