@@ -34,7 +34,7 @@ export default function ReadinessCard({ result }: ReadinessCardProps) {
 
       <div className="ledger-rule" />
 
-      <h3>Tee KredEx/EIS taotluseni</h3>
+      <h3>Tee EIS taotluseni</h3>
       <ol className="numbered-steps">
         {result.next_steps.map((step, i) => (
           <li key={i}>{step}</li>

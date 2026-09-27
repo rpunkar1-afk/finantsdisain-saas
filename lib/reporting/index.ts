@@ -160,7 +160,7 @@ export async function generateReport(
         ? generateSection(
             anthropic,
             "KÜ valmisolek",
-            "Kokkuvõta valmisoleku staatus ja järgmised sammud KredEx/EIS taotluseni.",
+            "Kokkuvõta valmisoleku staatus ja järgmised sammud EIS taotluseni.",
             kyReadiness,
           )
         : Promise.resolve(""),

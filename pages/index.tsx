@@ -14,14 +14,14 @@ const SEGMENTS = [
     eyebrow: "KÜ",
     title: "Laenu- ja toetusvalmidus korteriühistule",
     description:
-      "Üldkoosoleku otsus, hooldusfondi kate, energiamärgis — saa valmisoleku hinnang ja järgmised sammud KredEx/EIS taotluseni.",
+      "Üldkoosoleku otsus, hooldusfondi kate, energiamärgis — saa valmisoleku hinnang ja järgmised sammud EIS taotluseni.",
   },
   {
     href: "/grants",
     eyebrow: "Toetused",
     title: "Toetuste radar",
     description:
-      "Praegu avatud ja tulevased KredEx/EIS toetusprogrammid, filtreeritavad segmendi ja staatuse järgi.",
+      "Praegu avatud ja tulevased EIS, RTK, PRIA ja KIK toetusprogrammid, filtreeritavad segmendi ja staatuse järgi.",
   },
 ];
 
@@ -96,7 +96,7 @@ export default function Home() {
         <li>Laadige üles pangaväljavõte (VKE) või vastake KÜ küsimustikule.</li>
         <li>Saate deterministliku 0–100 skoori ja riskitaseme koos põhjendusega.</li>
         <li>Saate prioriseeritud tegevuskava nõrkade kohtade parandamiseks.</li>
-        <li>Vaadake sobivaid KredEx/EIS toetusprogramme.</li>
+        <li>Vaadake sobivaid toetusprogramme (EIS, RTK, PRIA, KIK).</li>
         <li>Genereerige lõplik raport taotluse ettevalmistamiseks.</li>
       </ol>
 

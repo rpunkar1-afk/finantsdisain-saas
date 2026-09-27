@@ -1,7 +1,7 @@
 // Netlify Function (v2, Web API handler)
 // Samm 7: KÜ valmisoleku kontroll
 // Kontrollib: üldkoosoleku otsus, hooldusfond, võlgnevused, energiamärgis, tehniline konsultant
-// Tagastab: checklist (ok/warning/blocked iga kriteeriumi kohta) + samm-sammuline tee KredEx/EIS taotluseni
+// Tagastab: checklist (ok/warning/blocked iga kriteeriumi kohta) + samm-sammuline tee EIS taotluseni
 
 import { scoreKY, type ScoringInput } from "../../lib/scoring";
 
@@ -53,7 +53,7 @@ function checkGeneralMeeting(decision: GeneralMeetingDecision): ChecklistItem {
       label: "Üldkoosoleku otsus",
       status: "warning",
       detail:
-        "Ainult lihthäälteenamus (50%) saavutatud. Osad laenuandjad (sh KredEx suuremate summade puhul) nõuavad 2/3 häälteenamust — kontrollige konkreetse toote nõudeid.",
+        "Ainult lihthäälteenamus (50%) saavutatud. Osad laenuandjad võivad nõuda kõrgemat häälteenamust — kontrollige konkreetse laenutoote nõudeid.",
     };
   }
   return {
@@ -121,7 +121,7 @@ function checkEnergyLabel(label: EnergyLabel): ChecklistItem {
       label: "Energiamärgis",
       status: "blocked",
       detail:
-        "Energiamärgis puudub. Renoveerimislaenu/toetuse taotlus (KredEx/EIS) eeldab kehtivat energiamärgist või energiaauditit.",
+        "Energiamärgis puudub. Renoveerimislaenu/toetuse taotlus (EIS) eeldab kehtivat energiamärgist või energiaauditit.",
     };
   }
   const lowEfficiency = ["E", "F", "G"].includes(label);
@@ -190,11 +190,11 @@ function buildNextSteps(checklist: ChecklistItem[]): string[] {
   const blocked = checklist.some((c) => c.status === "blocked");
   if (!blocked) {
     steps.push(
-      "Koostage taotlusdokumendid (üldkoosoleku protokoll, hooldusfondi väljavõte, energiamärgis, tehniline kirjeldus) ja esitage taotlus KredEx/EIS portaali kaudu.",
+      "Koostage taotlusdokumendid (üldkoosoleku protokoll, hooldusfondi väljavõte, energiamärgis, tehniline kirjeldus) ja esitage taotlus EIS portaali kaudu.",
     );
   } else {
     steps.push(
-      "Kõrvaldage ülaltoodud blokeerivad puudujäägid enne KredEx/EIS taotluse esitamist.",
+      "Kõrvaldage ülaltoodud blokeerivad puudujäägid enne EIS taotluse esitamist.",
     );
   }
 

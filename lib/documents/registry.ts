@@ -39,7 +39,7 @@ export const DOCUMENT_TYPES: DocumentTypeConfig[] = [
   {
     id: "ariplaan",
     title: "Äriplaan",
-    description: "Täismahus plaan pangale või investorile, 20–30 lk.",
+    description: "Pangale või investorile: kokkuvõte, äriidee ja turg, meeskond, rahastusvajadus.",
     audience: "VKE",
     outputFormat: "docx",
     fields: [
@@ -60,7 +60,7 @@ export const DOCUMENT_TYPES: DocumentTypeConfig[] = [
   {
     id: "finantsprognoos",
     title: "Finantsprognoos",
-    description: "3 aasta kasumiaruanne, bilanss ja rahavoog.",
+    description: "3 aasta käibe- ja kasumiprognoos Excelis päris valemitega.",
     audience: "VKE",
     outputFormat: "xlsx",
     fields: [
@@ -157,7 +157,7 @@ export const DOCUMENT_TYPES: DocumentTypeConfig[] = [
   {
     id: "rahavoo-mudel",
     title: "Rahavoo mudel",
-    description: "12 kuu likviidsusvaade koos stsenaariumitega.",
+    description: "12 kuu likviidsusvaade Excelis päris valemitega.",
     audience: "VKE",
     outputFormat: "xlsx",
     fields: [
