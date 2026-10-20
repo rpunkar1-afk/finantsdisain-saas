@@ -1,0 +1,103 @@
+name: Agendid
+
+# Neli agenti (hooldaja, turva, sait, peeter) töötavad Claude Code abil.
+# Iga agent teeb muudatused eraldi harus ja avab Pull Requesti; main-i ei puutu kunagi.
+# Reeglid: .github/agents/_reeglid.md. Juhised: .github/agents/<nimi>.md
+
+on:
+  workflow_dispatch:
+    inputs:
+      agent:
+        description: "Milline agent käivitada"
+        required: true
+        default: "koik"
+        type: choice
+        options:
+          - koik
+          - hooldaja
+          - turva
+          - sait
+          - peeter
+  schedule:
+    - cron: "0 7 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  agent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        agent: [hooldaja, turva, sait, peeter]
+    concurrency:
+      group: agent-${{ matrix.agent }}
+      cancel-in-progress: false
+    steps:
+      - name: Kas see agent peab jooksma
+        id: gate
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event.inputs.agent }}" = "koik" ] || [ "${{ github.event.inputs.agent }}" = "${{ matrix.agent }}" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        if: steps.gate.outputs.run == 'true'
+        run: npm ci
+
+      - name: Git identity ja sildid
+        if: steps.gate.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "finantsdisain-agent"
+          git config user.email "finantsdisain-agent@users.noreply.github.com"
+          gh label create agent --color 5319e7 --description "Agendi tehtud PR" --force || true
+          gh label create "agent-${{ matrix.agent }}" --color 5319e7 --description "Agent ${{ matrix.agent }}" --force || true
+
+      - name: Peetri testbotid (ainult agent peeter)
+        if: steps.gate.outputs.run == 'true' && matrix.agent == 'peeter'
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TARGET_URL: https://financedesign.ai
+          GENERATE: "0"
+        run: node scripts/peeter-testbots/run.mjs
+
+      - name: Käivita agent
+        if: steps.gate.outputs.run == 'true'
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_URL: https://financedesign.ai
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Sa oled agent "${{ matrix.agent }}" repos finantsdisain-saas (Finantsdisain AI, P.E.E.T.E.R.).
+            Kuupäev: ${{ github.run_started_at }}.
+            Esmalt loe failid `.github/agents/_reeglid.md` ja `.github/agents/${{ matrix.agent }}.md`
+            ning täida need täpselt. Reeglid on kõrgemal kui agendi juhis.
+            Vasta ja kirjuta PR-id ning issue'd eesti keeles.
+          claude_args: |
+            --max-turns 40
+            --model claude-sonnet-4-6
+            --allowedTools "Read,Glob,Grep,Edit,Write,Bash(npm:*),Bash(npx:*),Bash(node:*),Bash(git:*),Bash(gh pr:*),Bash(gh issue:*),Bash(gh label:*),Bash(grep:*),Bash(ls:*),Bash(cat:*)"
