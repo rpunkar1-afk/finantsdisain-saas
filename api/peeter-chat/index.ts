@@ -9,7 +9,7 @@
 // narratiivi sisend, mitte arvutuslik alus.
 
 import Anthropic from "@anthropic-ai/sdk";
-import { getDocumentType } from "../../lib/documents/registry";
+import { getDocumentType, type DocField } from "../../lib/documents/registry";
 import { buildMenuSystemPrompt, buildCollectionSystemPrompt } from "../../lib/peeter/prompt";
 
 export const config = {
@@ -36,6 +36,7 @@ interface ResponseBody {
 }
 
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
+const MAX_TOOL_ROUNDS = 3;
 
 const TOOLS: Anthropic.Tool[] = [
   {
@@ -52,7 +53,7 @@ const TOOLS: Anthropic.Tool[] = [
   {
     name: "propose_field",
     description:
-      "Registreeri kasutaja poolt äsja antud vastus ühele väljale. Tekstiväljad salvestuvad kohe, arvväljad vajavad kasutaja kinnitust.",
+      "Registreeri kasutaja poolt äsja antud vastus ühele väljale. Tekstiväljad salvestuvad kohe, arvväljad vajavad kasutaja kinnitust. Kui kasutaja andis korraga mitme välja info, kutsu tööriista iga välja jaoks samas vastuses.",
     input_schema: {
       type: "object",
       properties: {
@@ -89,28 +90,6 @@ export default async function handler(req: Request): Promise<Response> {
   const collected = body.collected ?? {};
   const anthropic = new Anthropic({ apiKey });
 
-  let systemPrompt: string;
-  try {
-    systemPrompt = body.documentTypeId
-      ? buildCollectionSystemPrompt(body.documentTypeId, collected)
-      : buildMenuSystemPrompt();
-  } catch (err) {
-    return jsonResponse({ error: String(err) }, 400);
-  }
-
-  let message;
-  try {
-    message = await anthropic.messages.create({
-      model: MODEL,
-      max_tokens: 500,
-      system: systemPrompt,
-      tools: TOOLS,
-      messages: body.messages.map((m) => ({ role: m.role, content: m.content })),
-    });
-  } catch (err) {
-    return jsonResponse({ error: "Claude API kutse ebaõnnestus", detail: String(err) }, 502);
-  }
-
   const result: ResponseBody = {
     reply: "",
     documentTypeId: body.documentTypeId,
@@ -119,114 +98,141 @@ export default async function handler(req: Request): Promise<Response> {
     readyToGenerate: false,
   };
 
-  const textParts: string[] = [];
+  // Kogumisfaasis on dokumenditüüp juba valitud. Kui select_document_type on siis
+  // saadaval, kutsub Claude seda korduvalt uuesti ega salvesta kasutaja vastust.
+  // Tööriistade hulk jääb kogu päringu ajaks samaks, sest ajalugu viitab neile.
+  const tools = body.documentTypeId ? TOOLS.filter((t) => t.name === "propose_field") : TOOLS;
 
-  for (const block of message.content) {
-    if (block.type === "text") {
-      textParts.push(block.text);
-    } else if (block.type === "tool_use") {
-      if (block.name === "select_document_type") {
-        const input = block.input as { type_id?: string };
-        if (input.type_id && getDocumentType(input.type_id)) {
-          result.documentTypeId = input.type_id;
-        }
-      } else if (block.name === "propose_field") {
-        const input = block.input as { field_id?: string; value?: string; field_type?: string };
-        if (!input.field_id || input.value === undefined) continue;
+  const conversation: Anthropic.MessageParam[] = body.messages.map((m) => ({ role: m.role, content: m.content }));
 
-        if (input.field_type === "number") {
-          if (!result.pendingConfirmation) {
-            const typeConfig = result.documentTypeId ? getDocumentType(result.documentTypeId) : undefined;
-            const fieldDef = typeConfig?.fields.find((f) => f.id === input.field_id);
-            result.pendingConfirmation = {
-              field_id: input.field_id,
-              label: fieldDef?.label ?? input.field_id,
-              value: input.value,
-              unit: fieldDef?.unit,
-            };
-          }
-        } else {
-          result.fieldUpdates[input.field_id] = input.value;
-        }
-      }
+  // Tööriistatsükkel: iga ringi tool-kutsed töödeldakse, tulemused saadetakse tagasi ja
+  // tsükkel lõpeb, kui Claude vastab tekstiga ilma tööriistata. Tööriista kõrval olev
+  // tekst on tavaliselt vaid sissejuhatus ("Salvestan nime."), mitte järgmine küsimus.
+  let lastText = "";
+  for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+    let systemPrompt: string;
+    try {
+      const mergedCollected = { ...collected, ...result.fieldUpdates };
+      systemPrompt = result.documentTypeId
+        ? buildCollectionSystemPrompt(result.documentTypeId, mergedCollected)
+        : buildMenuSystemPrompt();
+    } catch (err) {
+      return jsonResponse({ error: String(err) }, 400);
     }
-  }
 
-  result.reply = textParts.join("\n").trim();
+    let message;
+    try {
+      message = await anthropic.messages.create({
+        model: MODEL,
+        max_tokens: 500,
+        system: systemPrompt,
+        tools,
+        messages: conversation,
+      });
+    } catch (err) {
+      if (round === 0) {
+        return jsonResponse({ error: "Claude API kutse ebaõnnestus", detail: String(err) }, 502);
+      }
+      console.error("Peetri järelkutse ebaõnnestus:", err);
+      break;
+    }
 
-  // Kui Claude kutsus ainult tööriista ja ei kirjutanud teksti, jääks kasutaja ilma
-  // järgmise küsimuseta. Teine kutse (tool_result + tool_choice "none") sunnib
-  // Peetrit sõnastama järgmise sammu uue oleku põhjal.
-  if (!result.reply) {
-    const toolUses = message.content.filter(
-      (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
+    const text = message.content
+      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("\n")
+      .trim();
+    if (text) lastText = text;
+
+    const toolUses = message.content.filter((b): b is Anthropic.ToolUseBlock => b.type === "tool_use");
+    if (toolUses.length === 0) {
+      result.reply = text;
+      break;
+    }
+
+    for (const block of toolUses) applyToolUse(block, result);
+
+    conversation.push(
+      { role: "assistant", content: message.content },
+      {
+        role: "user",
+        content: toolUses.map((t) => ({
+          type: "tool_result" as const,
+          tool_use_id: t.id,
+          content: toolResultText(t, result),
+        })),
+      },
     );
-    if (toolUses.length > 0) {
-      try {
-        const mergedCollected = { ...collected, ...result.fieldUpdates };
-        const followUpSystem = result.documentTypeId
-          ? buildCollectionSystemPrompt(result.documentTypeId, mergedCollected)
-          : buildMenuSystemPrompt();
-        const followUp = await anthropic.messages.create({
-          model: MODEL,
-          max_tokens: 500,
-          system: followUpSystem,
-          tools: TOOLS,
-          tool_choice: { type: "none" },
-          messages: [
-            ...body.messages.map((m) => ({ role: m.role, content: m.content })),
-            { role: "assistant", content: message.content },
-            {
-              role: "user",
-              content: toolUses.map((t) => ({
-                type: "tool_result" as const,
-                tool_use_id: t.id,
-                content: toolResultText(t, result),
-              })),
-            },
-          ],
-        });
-        result.reply = followUp.content
-          .filter((b): b is Anthropic.TextBlock => b.type === "text")
-          .map((b) => b.text)
-          .join("\n")
-          .trim();
-      } catch (err) {
-        console.error("Peetri järelkutse ebaõnnestus:", err);
-      }
-    }
   }
 
-  if (!result.reply) {
-    result.reply = result.pendingConfirmation
-      ? "Palun kinnita allolev väärtus."
-      : "Andmed puuduvad. Kirjelda palun täpsemalt.";
-  }
+  if (!result.reply) result.reply = lastText;
 
+  let nextMissing: DocField | undefined;
   if (result.documentTypeId) {
     const typeConfig = getDocumentType(result.documentTypeId);
     if (typeConfig) {
       const mergedCollected = { ...collected, ...result.fieldUpdates };
-      result.readyToGenerate = typeConfig.fields
-        .filter((f) => f.required)
-        .every((f) => f.id in mergedCollected);
+      const missing = typeConfig.fields.filter((f) => f.required && !(f.id in mergedCollected));
+      result.readyToGenerate = missing.length === 0;
+      nextMissing = missing.find((f) => f.id !== result.pendingConfirmation?.field_id);
+    }
+  }
+
+  // Tühi vastus tekib, kui tööriistaringid said otsa enne, kui Claude teksti kirjutas.
+  // Siis sõnastab server järgmise sammu ise kogutud oleku põhjal.
+  if (!result.reply) {
+    if (result.pendingConfirmation) {
+      result.reply = "Palun kinnita allolev väärtus.";
+    } else if (result.readyToGenerate) {
+      result.reply = "Kõik vajalikud andmed on olemas. Dokument on valmis genereerimiseks.";
+    } else if (nextMissing) {
+      result.reply = `Järgmisena vajan: ${nextMissing.label.toLowerCase()}.`;
+    } else {
+      result.reply = "Kirjelda palun lühidalt, millist dokumenti vajad.";
     }
   }
 
   return jsonResponse(result, 200);
 }
 
+function applyToolUse(block: Anthropic.ToolUseBlock, result: ResponseBody): void {
+  if (block.name === "select_document_type") {
+    const input = block.input as { type_id?: string };
+    if (input.type_id && getDocumentType(input.type_id)) {
+      result.documentTypeId = input.type_id;
+    }
+  } else if (block.name === "propose_field") {
+    const input = block.input as { field_id?: string; value?: string; field_type?: string };
+    if (!input.field_id || input.value === undefined) return;
+
+    if (input.field_type === "number") {
+      if (!result.pendingConfirmation) {
+        const typeConfig = result.documentTypeId ? getDocumentType(result.documentTypeId) : undefined;
+        const fieldDef = typeConfig?.fields.find((f) => f.id === input.field_id);
+        result.pendingConfirmation = {
+          field_id: input.field_id,
+          label: fieldDef?.label ?? input.field_id,
+          value: input.value,
+          unit: fieldDef?.unit,
+        };
+      }
+    } else {
+      result.fieldUpdates[input.field_id] = input.value;
+    }
+  }
+}
+
 function toolResultText(tool: Anthropic.ToolUseBlock, result: ResponseBody): string {
   if (tool.name === "select_document_type") {
     return result.documentTypeId
-      ? `Valitud dokumenditüüp: ${result.documentTypeId}. Küsi esimest puuduvat välja.`
+      ? `Valitud dokumenditüüp: ${result.documentTypeId}. Kui kasutaja on vestluses juba andnud mõne välja info, salvesta nüüd KÕIK need "propose_field" kutsetega (üks kutse välja kohta). Seejärel küsi esimest puuduvat välja.`
       : "Tundmatu dokumenditüüp. Täpsusta kasutajalt vajadust.";
   }
   const input = tool.input as { field_id?: string };
   if (result.pendingConfirmation && result.pendingConfirmation.field_id === input.field_id) {
     return "Arvväärtus ootab kasutaja kinnitust. Palu kasutajal allolev väärtus kinnitada; ära küsi järgmist välja.";
   }
-  return "Salvestatud. Küsi järgmist puuduvat välja.";
+  return "Salvestatud. Kui kasutaja andis veel välju, mida pole salvestatud, salvesta ka need. Muidu küsi järgmist puuduvat välja; ära väida, et andmed on koos, kui süsteemiprompt näitab puuduvaid välju.";
 }
 
 function jsonResponse(body: unknown, status: number): Response {
