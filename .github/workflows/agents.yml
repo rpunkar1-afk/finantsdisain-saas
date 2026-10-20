@@ -3,6 +3,7 @@ name: Agendid
 # Neli agenti (hooldaja, turva, sait, peeter) töötavad Claude Code abil.
 # Iga agent teeb muudatused eraldi harus ja avab Pull Requesti; main-i ei puutu kunagi.
 # Reeglid: .github/agents/_reeglid.md. Juhised: .github/agents/<nimi>.md
+# Käivitub ainult käsitsi (Actions -> Agendid -> Run workflow), et API-krediit ei kuluks iseenesest.
 
 on:
   workflow_dispatch:
@@ -18,8 +19,6 @@ on:
           - turva
           - sait
           - peeter
-  schedule:
-    - cron: "0 7 * * 1"
 
 permissions:
   contents: write
@@ -42,7 +41,7 @@ jobs:
       - name: Kas see agent peab jooksma
         id: gate
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event.inputs.agent }}" = "koik" ] || [ "${{ github.event.inputs.agent }}" = "${{ matrix.agent }}" ]; then
+          if [ "${{ github.event.inputs.agent }}" = "koik" ] || [ "${{ github.event.inputs.agent }}" = "${{ matrix.agent }}" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

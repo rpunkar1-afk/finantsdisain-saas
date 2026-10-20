@@ -12,7 +12,7 @@
 //   ANTHROPIC_BASE_URL (vaikimisi https://api.anthropic.com; ainult isetestimiseks)
 //   SCENARIO           (valikuline: ainult see stsenaarium, id järgi)
 //   MAX_TURNS          (vaikimisi 18; lõksustsenaariumid lõpevad 6 käiguga)
-//   GENERATE           (vaikimisi 1; 0 = ära genereeri dokumenti)
+//   GENERATE           (vaikimisi 0; 1 = genereeri dokument, salvestab Blobs'i ja kulutab krediiti)
 //   STRICT             (1 = väljumiskood 1, kui esineb kõva rikkumine)
 
 import { readFileSync, writeFileSync, mkdirSync, appendFileSync } from "node:fs";
@@ -26,7 +26,7 @@ const TARGET = (process.env.TARGET_URL || "https://financedesign.ai").replace(/\
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 const MAX_TURNS = Number(process.env.MAX_TURNS || 18);
 const TRAP_TURNS = 6;
-const GENERATE = process.env.GENERATE !== "0";
+const GENERATE = process.env.GENERATE === "1";
 const ONLY = (process.env.SCENARIO || "").trim();
 const STRICT = process.env.STRICT === "1";
 
