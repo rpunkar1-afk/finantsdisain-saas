@@ -315,10 +315,22 @@ ${transcript}
 
 Genereeritud dokument:
 ${doc}`;
-  const raw = await claude({ system: JUDGE_SYSTEM, prompt, max_tokens: 1200 });
-  const m = raw.match(/\{[\s\S]*\}/);
-  if (!m) throw new Error(`Hindaja vastus pole JSON: ${raw.slice(0, 200)}`);
-  return JSON.parse(m[0]);
+  // Hindaja JSON on vahel katki (nt jutumärk tsitaadis). Proovi uuesti, enne kui loobud.
+  let lastErr;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const raw = await claude({ system: JUDGE_SYSTEM, prompt, max_tokens: 1500 });
+    const m = raw.match(/\{[\s\S]*\}/);
+    try {
+      if (!m) throw new Error(`Hindaja vastus pole JSON: ${raw.slice(0, 200)}`);
+      const parsed = JSON.parse(m[0]);
+      // Ilma dokumendita pole dokumendi tõepärasust, mida hinnata.
+      if (!log.generated && parsed.scores) parsed.scores.document_faithfulness = null;
+      return parsed;
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr;
 }
 
 // ---------- aruanne ----------
