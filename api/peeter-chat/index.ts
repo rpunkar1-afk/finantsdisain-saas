@@ -111,6 +111,16 @@ export default async function handler(req: Request): Promise<Response> {
   // tekst on tavaliselt vaid sissejuhatus ("Salvestan nime."), mitte järgmine küsimus.
   let lastText = "";
   const rejectedFields: Record<string, string> = {};
+
+  // Kinnitussõnum ("[Kinnitatud: ...]") ei too uut väärtust. Pärast seda pakkus Claude
+  // järgmisele arvväljale eelmise välja väärtuse (testbotid: püsikulud = käive). Sellisel
+  // käigul peab pakutud arv leiduma mõnes kasutaja varasemas sõnumis, muidu küsitakse seda.
+  const userTexts = body.messages
+    .filter((m) => m.role === "user" && !isConfirmation(m.content))
+    .map((m) => m.content);
+  const lastUser = [...body.messages].reverse().find((m) => m.role === "user");
+  const numberGuard = lastUser && isConfirmation(lastUser.content) ? userTexts : null;
+
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     let systemPrompt: string;
     try {
@@ -169,7 +179,7 @@ export default async function handler(req: Request): Promise<Response> {
       (a, b) => Number(b.name === "select_document_type") - Number(a.name === "select_document_type"),
     );
     for (const block of ordered) {
-      if (!alreadyCollected(block)) applyToolUse(block, result, rejectedFields);
+      if (!alreadyCollected(block)) applyToolUse(block, result, rejectedFields, numberGuard);
     }
 
     conversation.push(
@@ -180,7 +190,7 @@ export default async function handler(req: Request): Promise<Response> {
           type: "tool_result" as const,
           tool_use_id: t.id,
           content: alreadyCollected(t)
-            ? "See väli on juba kogutud ja kinnitatud. Ära küsi seda uuesti; küsi järgmist puuduvat välja."
+            ? "See väli on juba kogutud ja kinnitatud. Ära küsi seda uuesti. Küsi kasutajalt järgmist puuduvat välja küsimusega; ära paku sellele ise väärtust."
             : toolResultText(t, result, rejectedFields),
         })),
       },
@@ -221,7 +231,33 @@ function findField(typeId: string | null, fieldId: string): DocField | undefined
   return typeId ? getDocumentType(typeId)?.fields.find((f) => f.id === fieldId) : undefined;
 }
 
-function applyToolUse(block: Anthropic.ToolUseBlock, result: ResponseBody, rejected: Record<string, string>): void {
+function isConfirmation(text: string): boolean {
+  return text.trimStart().startsWith("[Kinnitatud:");
+}
+
+// Kas arv esineb kasutaja tekstis: numbrid koos tuhandete eraldajaga ("45 000"),
+// "120 tuhat"/"120k", "1,5 miljonit" ning protsent osakaaluna (4% -> 0,04).
+function numberMentioned(value: string, texts: string[]): boolean {
+  const target = Number(String(value).replace(",", "."));
+  if (!Number.isFinite(target)) return false;
+  const close = (a: number) => Math.abs(a - target) <= Math.max(1e-9, Math.abs(target) * 1e-9);
+  for (const raw of texts) {
+    const text = raw.toLowerCase().replace(/(\d)[\s ](?=\d{3}\b)/g, "$1");
+    for (const m of text.matchAll(/(\d+(?:[.,]\d+)?)\s*(tuhat|tuh|k\b|miljon|milj|mln)?/g)) {
+      const n = Number(m[1].replace(",", "."));
+      const scale = m[2] ? (m[2].startsWith("m") ? 1e6 : 1e3) : 1;
+      if ([n, n * scale, n / 100, (n * scale) / 100].some(close)) return true;
+    }
+  }
+  return false;
+}
+
+function applyToolUse(
+  block: Anthropic.ToolUseBlock,
+  result: ResponseBody,
+  rejected: Record<string, string>,
+  numberGuard: string[] | null,
+): void {
   if (block.name === "select_document_type") {
     const input = block.input as { type_id?: string };
     if (input.type_id && getDocumentType(input.type_id)) {
@@ -244,6 +280,8 @@ function applyToolUse(block: Anthropic.ToolUseBlock, result: ResponseBody, rejec
       const err = validateFieldValue(fieldDef, input.value);
       if (err) {
         rejected[input.field_id] = err;
+      } else if (numberGuard && !numberMentioned(input.value, numberGuard)) {
+        rejected[input.field_id] = "Kasutaja pole seda arvu öelnud.";
       } else if (!result.pendingConfirmation) {
         result.pendingConfirmation = {
           field_id: input.field_id,
