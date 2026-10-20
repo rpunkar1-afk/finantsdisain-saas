@@ -12,9 +12,9 @@ on:
         required: false
         default: ""
       generate:
-        description: "Genereeri dokument (1 = jah, 0 = ei)"
+        description: "Genereeri dokument (1 = jah, salvestab Blobs'i ja kulutab krediiti; 0 = ei)"
         required: false
-        default: "1"
+        default: "0"
   schedule:
     - cron: "0 6 * * 1"
 
@@ -39,7 +39,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TARGET_URL: ${{ github.event.inputs.target_url || 'https://financedesign.ai' }}
           SCENARIO: ${{ github.event.inputs.scenario || '' }}
-          GENERATE: ${{ github.event.inputs.generate || '1' }}
+          GENERATE: ${{ github.event.inputs.generate || '0' }}
         run: node scripts/peeter-testbots/run.mjs
 
       - name: Upload report
