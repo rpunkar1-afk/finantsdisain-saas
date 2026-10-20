@@ -1,12 +1,12 @@
 name: Tervisemonitor
 
-# Kontrollib iga 6 tunni tagant, kas live-sait ja Peetri Claude-ühendus töötavad.
+# Kontrollib iga päev, kas live-sait ja Peetri Claude-ühendus töötavad.
 # Rikke korral avab (või uuendab) issue'd; kui kõik on jälle korras, sulgeb selle.
 # Ei kasuta agenti, ainult skripti; Peetri kontroll kulutab ühe lühikese Claude-päringu.
 
 on:
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "17 5 * * *"
   workflow_dispatch:
     inputs:
       target_url:

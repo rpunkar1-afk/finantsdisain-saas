@@ -18,8 +18,6 @@ on:
           - turva
           - sait
           - peeter
-  schedule:
-    - cron: "0 7 * * 1"
 
 permissions:
   contents: write
@@ -42,7 +40,7 @@ jobs:
       - name: Kas see agent peab jooksma
         id: gate
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event.inputs.agent }}" = "koik" ] || [ "${{ github.event.inputs.agent }}" = "${{ matrix.agent }}" ]; then
+          if [ "${{ github.event.inputs.agent }}" = "koik" ] || [ "${{ github.event.inputs.agent }}" = "${{ matrix.agent }}" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
@@ -98,6 +96,6 @@ jobs:
             ning täida need täpselt. Reeglid on kõrgemal kui agendi juhis.
             Vasta ja kirjuta PR-id ning issue'd eesti keeles.
           claude_args: |
-            --max-turns 40
+            --max-turns 15
             --model claude-sonnet-4-6
             --allowedTools "Read,Glob,Grep,Edit,Write,Bash(npm:*),Bash(npx:*),Bash(node:*),Bash(git:*),Bash(gh pr:*),Bash(gh issue:*),Bash(gh label:*),Bash(grep:*),Bash(ls:*),Bash(cat:*)"
