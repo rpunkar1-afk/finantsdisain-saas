@@ -150,7 +150,15 @@ export default async function handler(req: Request): Promise<Response> {
       break;
     }
 
-    for (const block of toolUses) applyToolUse(block, result);
+    // Juba kinnitatud arvvälja uuesti pakkumine avaks kinnitusvormi lõputult uuesti.
+    const alreadyCollected = (t: Anthropic.ToolUseBlock) => {
+      const input = t.input as { field_id?: string; field_type?: string };
+      return t.name === "propose_field" && input.field_type === "number" && !!input.field_id && input.field_id in collected;
+    };
+
+    for (const block of toolUses) {
+      if (!alreadyCollected(block)) applyToolUse(block, result);
+    }
 
     conversation.push(
       { role: "assistant", content: message.content },
@@ -159,7 +167,9 @@ export default async function handler(req: Request): Promise<Response> {
         content: toolUses.map((t) => ({
           type: "tool_result" as const,
           tool_use_id: t.id,
-          content: toolResultText(t, result),
+          content: alreadyCollected(t)
+            ? "See väli on juba kogutud ja kinnitatud. Ära küsi seda uuesti; küsi järgmist puuduvat välja."
+            : toolResultText(t, result),
         })),
       },
     );
