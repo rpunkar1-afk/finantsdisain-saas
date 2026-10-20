@@ -7,6 +7,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { getDocumentType, type DocumentTypeConfig } from "./registry";
 import { scoreVKE, type ScoringResult } from "../scoring";
 import { generateVKEActionPlan, type ActionItem } from "../opportunities";
+import { reviewSections, type DocumentReview } from "./review";
 
 export interface GeneratedSection {
   id: string;
@@ -51,6 +52,7 @@ export interface GeneratedDocument {
   generated_at: string; // ISO 8601
   input: Record<string, string | number>;
   analysis?: DocumentAnalysis;
+  review?: DocumentReview; // Kontrolöri tulemus (Samm 3)
   sections: GeneratedSection[];
 }
 
@@ -123,7 +125,7 @@ export async function generateDocument(
   const analysis = computeAnalysis(config, input);
   const promptData = analysis ? { input, analysis } : input;
 
-  const sections: GeneratedSection[] = await Promise.all(
+  let sections: GeneratedSection[] = await Promise.all(
     config.sections.map(async (s) => ({
       id: s.id,
       heading: s.heading,
@@ -131,12 +133,38 @@ export async function generateDocument(
     })),
   );
 
+  // Kontrolör: deterministlik kontroll. Probleemsed sektsioonid kirjutatakse ÜKS kord ümber
+  // (paralleelselt), tagasisidega, millised arvud ei pärine sisendist.
+  let review = reviewSections(sections, input, analysis);
+  if (review.status === "warning") {
+    const badIds = new Set(review.issues.map((i) => i.section_id));
+    sections = await Promise.all(
+      sections.map(async (sec) => {
+        if (!badIds.has(sec.id)) return sec;
+        const def = config.sections.find((d) => d.id === sec.id)!;
+        const feedback = review.issues
+          .filter((i) => i.section_id === sec.id)
+          .map((i) => i.detail)
+          .join("; ");
+        const narrative = await generateSectionText(
+          anthropic,
+          def.heading,
+          `${def.instruction}\n\nEELMINE VERSIOON EI LÄINUD KONTROLLI: ${feedback}. Kasuta ainult sisendis ja analüüsis olevaid arve, ära arvuta ega hinda uusi numbreid.`,
+          promptData,
+        );
+        return { ...sec, narrative };
+      }),
+    );
+    review = reviewSections(sections, input, analysis);
+  }
+
   return {
     document_id: documentId,
     type_id: typeId,
     generated_at: new Date().toISOString(),
     input,
     ...(analysis ? { analysis } : {}),
+    review,
     sections,
   };
 }

@@ -11,6 +11,18 @@ export default function DocumentResult({ document, config, onReset }: DocumentRe
   return (
     <>
       <div className="ledger-rule" />
+      {document.review && document.review.status === "warning" && (
+        <div className="error-box">
+          <strong>Kontrolör märkas probleeme. Kontrolli need enne dokumendi kasutamist:</strong>
+          <ul>
+            {document.review.issues.map((i, idx) => (
+              <li key={idx}>
+                {document.sections.find((s) => s.id === i.section_id)?.heading ?? i.section_id}: {i.detail}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {document.analysis && (
         <div className="card">
           <h2>
