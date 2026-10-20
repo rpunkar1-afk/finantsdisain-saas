@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import ReadinessCard from "../components/ReadinessCard";
-import type { KYReadinessInput, KYReadinessResult } from "../api/ky-readiness";
+import type { KYReadinessInput, KYReadinessResult } from "../lib/ky/readiness";
 import type { GrantProgram } from "../api/grants";
 
 const GENERAL_MEETING_OPTIONS = [

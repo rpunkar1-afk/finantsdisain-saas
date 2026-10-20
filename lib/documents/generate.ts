@@ -5,9 +5,10 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { getDocumentType, type DocumentTypeConfig } from "./registry";
-import { scoreVKE, type ScoringResult } from "../scoring";
+import { scoreVKE, scoreKY, type ScoringResult } from "../scoring";
 import { generateVKEActionPlan, type ActionItem } from "../opportunities";
 import { reviewSections, type DocumentReview } from "./review";
+import { checkKYReadiness, type ChecklistItem, type KYReadinessInput } from "../ky/readiness";
 
 export interface GeneratedSection {
   id: string;
@@ -18,6 +19,7 @@ export interface GeneratedSection {
 // Deterministlik analüüs (skoorimootor + tegevuskava), arvutatud enne narratiivi kirjutamist.
 // Claude ei arvuta neid numbreid ise, ta ainult selgitab neid.
 export interface DocumentAnalysis {
+  segment: "vke" | "ky";
   score: number;
   risk_level: ScoringResult["risk_level"];
   strengths: string[];
@@ -25,6 +27,8 @@ export interface DocumentAnalysis {
   breakdown: ScoringResult["breakdown"];
   action_plan: ActionItem[];
   plan_90d: PlanPhase[];
+  // Ainult KÜ segment: valmiduse kontrollnimekiri ja sammud EIS taotluseni
+  ky_readiness?: { overall_ready: boolean; checklist: ChecklistItem[]; next_steps: string[] };
 }
 
 export interface PlanPhase {
@@ -58,9 +62,27 @@ export interface GeneratedDocument {
 
 export function computeAnalysis(config: DocumentTypeConfig, input: Record<string, string | number>): DocumentAnalysis | undefined {
   if (!config.analysis) return undefined;
+
+  if (config.analysis.segment === "ky") {
+    const ky = checkKYReadiness(input as unknown as KYReadinessInput);
+    const scored = scoreKY(input);
+    return {
+      segment: "ky",
+      score: scored.score,
+      risk_level: scored.risk_level,
+      strengths: scored.strengths,
+      weaknesses: scored.weaknesses,
+      breakdown: scored.breakdown,
+      action_plan: [],
+      plan_90d: [],
+      ky_readiness: { overall_ready: ky.overall_ready, checklist: ky.checklist, next_steps: ky.next_steps },
+    };
+  }
+
   const result = scoreVKE(input);
   const action_plan = generateVKEActionPlan(result);
   return {
+    segment: "vke",
     score: result.score,
     risk_level: result.risk_level,
     strengths: result.strengths,

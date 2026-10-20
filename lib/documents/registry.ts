@@ -31,7 +31,7 @@ export interface DocField {
 // deterministliku analüüsi (skoor, riskitase, tugevused/nõrkused, tegevuskava)
 // skoorimootori reeglitest. Väljade id-d peavad vastama skoorireeglite id-dele.
 export interface DocAnalysisConfig {
-  segment: "vke";
+  segment: "vke" | "ky";
 }
 
 export interface DocSection {
@@ -94,6 +94,45 @@ const VKE_SCORING_FIELDS: DocField[] = [
       ],
     },
   ]
+
+// KÜ valmiduse sisendväljad. Esimesed kolm vastavad KÜ skooriregli id-dele (lib/scoring/rules.ts),
+// ülejäänud kaks lib/ky/readiness.ts kontrollnimekirjale.
+const KY_FIELDS: DocField[] = [
+  { id: "company_name", label: "Korteriühistu nimi", type: "text", required: true },
+  { id: "ky_debt_ratio", label: "Liikmete võlgnevused osakaaluna majanduskuludest", type: "number", unit: "0-1", required: true, min: 0, max: 1, placeholder: "nt 0.04" },
+  { id: "maintenance_fund_coverage", label: "Hooldusfondi kate", type: "number", unit: "€/m²", required: true, min: 0, placeholder: "nt 0.8" },
+  {
+    id: "general_meeting_decision",
+    label: "Üldkoosoleku otsus laenu/investeeringu kohta",
+    type: "select",
+    required: true,
+    options: [
+      { value: "two_thirds_majority", label: "2/3 häälteenamus" },
+      { value: "simple_majority", label: "50% (lihthäälteenamus)" },
+      { value: "missing", label: "Otsus puudub" },
+    ],
+  },
+  {
+    id: "energy_label",
+    label: "Energiamärgis",
+    type: "select",
+    required: true,
+    options: [
+      ...["A", "B", "C", "D", "E", "F", "G"].map((l) => ({ value: l, label: `Energiamärgis ${l}` })),
+      { value: "none", label: "Energiamärgis puudub" },
+    ],
+  },
+  {
+    id: "technical_consultant",
+    label: "Tehniline konsultant",
+    type: "select",
+    required: true,
+    options: [
+      { value: "engaged", label: "Kaasatud" },
+      { value: "not_engaged", label: "Pole kaasatud" },
+    ],
+  },
+]
 
 export const DOCUMENT_TYPES: DocumentTypeConfig[] = [
   {
@@ -249,6 +288,21 @@ export const DOCUMENT_TYPES: DocumentTypeConfig[] = [
       { id: "phase3", heading: "Päevad 61-90", instruction: "Kirjelda analysis.plan_90d etapi '61-90' kontrollpunkt täpselt nii nagu antud." },
       { id: "risks", heading: "Riskid", instruction: "Too välja riskid, mis plaani täitmist ohustavad, lähtudes ainult analysis.weaknesses ja analysis.risk_level andmetest." },
       { id: "next", heading: "Järgmised sammud", instruction: "Nimeta 1-3 esimest sammu, mida teha järgmise 7 päeva jooksul, valides need analysis.plan_90d esimese etapi tegevuste hulgast. Kui seal tegevusi pole, ütle seda." },
+    ],
+  },
+  {
+    id: "ky-valmidus",
+    title: "Korteriühistu laenuvalmiduse hinnang",
+    description: "KÜ skoor (0-100), riskitase, valmiduse kontrollnimekiri ja sammud EIS taotluseni.",
+    audience: "KÜ",
+    outputFormat: "docx",
+    analysis: { segment: "ky" },
+    fields: KY_FIELDS,
+    sections: [
+      { id: "summary", heading: "Kokkuvõte", instruction: "Kokkuvõte KÜ koondskoorist ja riskitasemest (analysis.score, analysis.risk_level) ning sellest, kas ühistu on taotluseks valmis (analysis.ky_readiness.overall_ready). Ära arvuta skoori ise." },
+      { id: "criteria", heading: "Skoor kriteeriumite lõikes", instruction: "Selgita, kuidas skoor kriteeriumite lõikes tekkis, lähtudes analysis.breakdown andmetest (punktid ja kaal)." },
+      { id: "checklist", heading: "Valmiduse kontrollnimekiri", instruction: "Kirjelda iga analysis.ky_readiness.checklist kirje staatus (ok / warning / blocked) ja detail täpselt nii nagu antud. Ära lisa kirjeid, mida nimekirjas pole." },
+      { id: "steps", heading: "Sammud EIS taotluseni", instruction: "Esita analysis.ky_readiness.next_steps sammud samas järjekorras, ilma samme lisamata või välja jätmata." },
     ],
   },
   {

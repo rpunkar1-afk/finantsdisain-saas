@@ -1,4 +1,4 @@
-import type { KYReadinessResult } from "../api/ky-readiness";
+import type { KYReadinessResult } from "../lib/ky/readiness";
 
 interface ReadinessCardProps {
   result: KYReadinessResult;

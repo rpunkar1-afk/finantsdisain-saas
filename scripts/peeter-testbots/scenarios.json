@@ -48,8 +48,8 @@
   },
   {
     "id": "ky-ebaselge",
-    "title": "KÜ: esimees tahab remondilaenu (registris on ainult VKE dokumenditüübid)",
-    "expected_type": null,
+    "title": "KÜ: esimees tahab remondilaenu (Peeter peab suunama KÜ dokumendile)",
+    "expected_type": "ky-valmidus",
     "expect_complete": false,
     "opening": "Olen korteriühistu esimees, meil on vaja katuseremonti ja laenu selleks. Mida te teha saate?",
     "persona": "Korteriühistu esimees Tiit. Ei tunne finantsterminoloogiat. Vastab lühidalt. Kui Peeter pakub midagi, mis ei sobi KÜ-le, küsib ta otse, kas see on tema jaoks.",
@@ -117,6 +117,27 @@
       "revenue_stability",
       "company_age",
       "accounting_quality"
+    ]
+  },
+  {
+    "id": "ky-valmidus-taielik",
+    "title": "KÜ: laenuvalmiduse hinnang (numbrid + valikväljad)",
+    "expected_type": "ky-valmidus",
+    "expect_complete": true,
+    "opening": "Olen korteriühistu Lille 5 esimees. Tahame katuseremonti ja laenu. Kas oleme taotluseks valmis?",
+    "persona": "Korteriühistu esimees Tiit. Vastab lühidalt oma sõnadega, mitte võtmetega (nt 'üldkoosolek otsustas lihthäälteenamusega', 'energiamärgist pole veel', 'tehnilist konsultanti pole kaasanud'). Võlgnevus on 4 protsenti majanduskuludest, hooldusfondi kate 0,8 eurot ruutmeetri kohta.",
+    "facts": {
+      "company_name": "Lille 5 KÜ",
+      "ky_debt_ratio": 0.04,
+      "maintenance_fund_coverage": 0.8,
+      "general_meeting_decision": "simple_majority",
+      "energy_label": "none",
+      "technical_consultant": "not_engaged"
+    },
+    "select_fields": [
+      "general_meeting_decision",
+      "energy_label",
+      "technical_consultant"
     ]
   }
 ]
