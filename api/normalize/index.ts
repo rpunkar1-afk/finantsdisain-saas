@@ -30,7 +30,7 @@ export default async function handler(req: Request): Promise<Response> {
       }
       return jsonResponse(data, 200);
     } catch (err) {
-      return jsonResponse({ error: "Profiili taastamine ebaõnnestus", detail: String(err) }, 500);
+      return jsonResponse({ error: "Profiili taastamine ebaõnnestus" }, 500);
     }
   }
 
@@ -42,7 +42,7 @@ export default async function handler(req: Request): Promise<Response> {
   try {
     raw = (await req.json()) as RawParseResult;
   } catch (err) {
-    return jsonResponse({ error: "Vigane JSON sisend", detail: String(err) }, 400);
+    return jsonResponse({ error: "Vigane JSON sisend" }, 400);
   }
 
   if (!raw || !Array.isArray(raw.transactions)) {
@@ -69,7 +69,7 @@ export default async function handler(req: Request): Promise<Response> {
 
     return jsonResponse(resultWithId, 200);
   } catch (err) {
-    return jsonResponse({ error: "Normaliseerimine ebaõnnestus", detail: String(err) }, 500);
+    return jsonResponse({ error: "Normaliseerimine ebaõnnestus" }, 500);
   }
 }
 

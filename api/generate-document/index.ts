@@ -34,7 +34,7 @@ export default async function handler(req: Request): Promise<Response> {
   try {
     body = (await req.json()) as RequestBody;
   } catch (err) {
-    return jsonResponse({ error: "Vigane JSON sisend", detail: String(err) }, 400);
+    return jsonResponse({ error: "Vigane JSON sisend" }, 400);
   }
 
   if (!body.typeId || !getDocumentType(body.typeId)) {
@@ -70,7 +70,7 @@ export default async function handler(req: Request): Promise<Response> {
 
     return jsonResponse(document, 200);
   } catch (err) {
-    return jsonResponse({ error: "Dokumendi genereerimine ebaõnnestus", detail: String(err) }, 502);
+    return jsonResponse({ error: "Dokumendi genereerimine ebaõnnestus" }, 502);
   }
 }
 
