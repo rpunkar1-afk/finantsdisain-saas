@@ -51,6 +51,50 @@ export interface DocumentTypeConfig {
   analysis?: DocAnalysisConfig;
 }
 
+// Skoorimootori sisendväljad (VKE). Id-d vastavad lib/scoring/rules.ts reegli id-dele.
+const VKE_SCORING_FIELDS: DocField[] = [
+    { id: "company_name", label: "Ettevõtte nimi", type: "text", required: true },
+    { id: "dscr", label: "DSCR (võlateenindamise kattekordaja)", type: "number", unit: "x", required: true, min: 0, max: 50, placeholder: "nt 1.4" },
+    { id: "cost_structure", label: "Püsikulude osakaal kogukuludest", type: "number", unit: "0-1", required: true, min: 0, max: 1, placeholder: "nt 0.45" },
+    { id: "tax_debt", label: "Maksuvõlg", type: "number", unit: "€", required: true, min: 0 },
+    {
+      id: "revenue_stability",
+      label: "Käibe stabiilsus",
+      type: "select",
+      required: true,
+      options: [
+        { value: "cv_low_trend_up", label: "Väga stabiilne ja kasvav (kõikumine alla 15%, trend positiivne)" },
+        { value: "cv_low_trend_flat", label: "Stabiilne, kuid ei kasva (kõikumine alla 15%), või mõõdukalt kõikuv (15-30%) ja kasvav" },
+        { value: "cv_mid_trend_flat", label: "Mõõdukalt kõikuv (15-30%) ja ei kasva, või väga kõikuv (üle 30%) ja kasvav" },
+        { value: "cv_high_trend_down", label: "Väga kõikuv (üle 30%) ja langev" },
+      ],
+    },
+    {
+      id: "company_age",
+      label: "Ettevõtte vanus",
+      type: "select",
+      required: true,
+      options: [
+        { value: "3y_plus", label: "3 aastat või rohkem" },
+        { value: "1y_3y", label: "1-3 aastat" },
+        { value: "6m_12m", label: "6-12 kuud" },
+        { value: "0m_6m", label: "0-6 kuud" },
+      ],
+    },
+    {
+      id: "accounting_quality",
+      label: "Raamatupidamise kvaliteet",
+      type: "select",
+      required: true,
+      options: [
+        { value: "consistent_no_arrears", label: "Järjepidev, viivisteta" },
+        { value: "consistent_minor_arrears", label: "Järjepidev, väiksed viivised" },
+        { value: "inconsistent_no_arrears", label: "Ebajärjepidev, viivisteta" },
+        { value: "inconsistent_with_arrears", label: "Ebajärjepidev, viivistega" },
+      ],
+    },
+  ]
+
 export const DOCUMENT_TYPES: DocumentTypeConfig[] = [
   {
     id: "ariplaan",
@@ -177,54 +221,34 @@ export const DOCUMENT_TYPES: DocumentTypeConfig[] = [
     audience: "VKE",
     outputFormat: "docx",
     analysis: { segment: "vke" },
-    fields: [
-      { id: "company_name", label: "Ettevõtte nimi", type: "text", required: true },
-      { id: "dscr", label: "DSCR (võlateenindamise kattekordaja)", type: "number", unit: "x", required: true, min: 0, max: 50, placeholder: "nt 1.4" },
-      { id: "cost_structure", label: "Püsikulude osakaal kogukuludest", type: "number", unit: "0-1", required: true, min: 0, max: 1, placeholder: "nt 0.45" },
-      { id: "tax_debt", label: "Maksuvõlg", type: "number", unit: "€", required: true, min: 0 },
-      {
-        id: "revenue_stability",
-        label: "Käibe stabiilsus",
-        type: "select",
-        required: true,
-        options: [
-          { value: "cv_low_trend_up", label: "Väga stabiilne ja kasvav (kõikumine alla 15%, trend positiivne)" },
-          { value: "cv_low_trend_flat", label: "Stabiilne, kuid ei kasva (kõikumine alla 15%), või mõõdukalt kõikuv (15-30%) ja kasvav" },
-          { value: "cv_mid_trend_flat", label: "Mõõdukalt kõikuv (15-30%) ja ei kasva, või väga kõikuv (üle 30%) ja kasvav" },
-          { value: "cv_high_trend_down", label: "Väga kõikuv (üle 30%) ja langev" },
-        ],
-      },
-      {
-        id: "company_age",
-        label: "Ettevõtte vanus",
-        type: "select",
-        required: true,
-        options: [
-          { value: "3y_plus", label: "3 aastat või rohkem" },
-          { value: "1y_3y", label: "1-3 aastat" },
-          { value: "6m_12m", label: "6-12 kuud" },
-          { value: "0m_6m", label: "0-6 kuud" },
-        ],
-      },
-      {
-        id: "accounting_quality",
-        label: "Raamatupidamise kvaliteet",
-        type: "select",
-        required: true,
-        options: [
-          { value: "consistent_no_arrears", label: "Järjepidev, viivisteta" },
-          { value: "consistent_minor_arrears", label: "Järjepidev, väiksed viivised" },
-          { value: "inconsistent_no_arrears", label: "Ebajärjepidev, viivisteta" },
-          { value: "inconsistent_with_arrears", label: "Ebajärjepidev, viivistega" },
-        ],
-      },
-    ],
+    fields: VKE_SCORING_FIELDS,
     sections: [
       { id: "summary", heading: "Kokkuvõte", instruction: "Kokkuvõte koondskoorist ja riskitasemest. Kasuta täpselt analysis.score ja analysis.risk_level väärtusi; ära arvuta skoori ise." },
       { id: "criteria", heading: "Skoor kriteeriumite lõikes", instruction: "Selgita, kuidas koondskoor kriteeriumite lõikes tekkis, lähtudes analysis.breakdown andmetest (punktid ja kaal iga kriteeriumi kohta)." },
       { id: "strengths", heading: "Tugevused", instruction: "Too välja tugevused analysis.strengths põhjal. Kui tugevusi pole, ütle seda otse." },
       { id: "weaknesses", heading: "Nõrkused ja riskid", instruction: "Too välja nõrkused ja riskid analysis.weaknesses põhjal. Kui nõrkusi pole, ütle seda otse." },
       { id: "actions", heading: "Tegevuskava", instruction: "Kokkuvõta tegevused analysis.action_plan põhjal prioriteedi järgi (high enne medium). Ära lisa tegevusi, mida plaanis pole." },
+    ],
+  },
+  {
+    id: "tegevuskava",
+    title: "90 päeva tegevuskava",
+    description: "Laenuvalmiduse tõstmise plaan 90 päevaks: olukorra analüüs, sammud etappide kaupa, riskid ja esimesed sammud.",
+    audience: "VKE",
+    outputFormat: "docx",
+    analysis: { segment: "vke" },
+    fields: [
+      ...VKE_SCORING_FIELDS,
+      { id: "goal", label: "Eesmärk (mida laen või rahastus peab võimaldama)", type: "textarea", required: false },
+    ],
+    sections: [
+      { id: "summary", heading: "Kokkuvõte", instruction: "Kokkuvõte olukorrast (analysis.score, analysis.risk_level) ja plaani eesmärgist. Kui sisendis on 'goal', nimeta see; kui puudub, ära oleta eesmärki." },
+      { id: "analysis", heading: "Olukorra analüüs", instruction: "Selgita, mis skoori kõige enam tõmbab, lähtudes analysis.weaknesses ja analysis.breakdown andmetest." },
+      { id: "phase1", heading: "Päevad 1-30", instruction: "Kirjelda analysis.plan_90d etapi '1-30' tegevused (prioriteet kõrge). Iga tegevuse juures: mida teha ja millisele kriteeriumile see viitab. Ära lisa tegevusi, mida plaanis pole. Kui tegevusi pole, ütle seda." },
+      { id: "phase2", heading: "Päevad 31-60", instruction: "Kirjelda analysis.plan_90d etapi '31-60' tegevused. Ära lisa tegevusi, mida plaanis pole. Kui tegevusi pole, ütle seda." },
+      { id: "phase3", heading: "Päevad 61-90", instruction: "Kirjelda analysis.plan_90d etapi '61-90' kontrollpunkt täpselt nii nagu antud." },
+      { id: "risks", heading: "Riskid", instruction: "Too välja riskid, mis plaani täitmist ohustavad, lähtudes ainult analysis.weaknesses ja analysis.risk_level andmetest." },
+      { id: "next", heading: "Järgmised sammud", instruction: "Nimeta 1-3 esimest sammu, mida teha järgmise 7 päeva jooksul, valides need analysis.plan_90d esimese etapi tegevuste hulgast. Kui seal tegevusi pole, ütle seda." },
     ],
   },
   {

@@ -23,6 +23,26 @@ export interface DocumentAnalysis {
   weaknesses: string[];
   breakdown: ScoringResult["breakdown"];
   action_plan: ActionItem[];
+  plan_90d: PlanPhase[];
+}
+
+export interface PlanPhase {
+  phase: "1-30" | "31-60" | "61-90";
+  items: ActionItem[];
+  checkpoint?: string; // kindel kontrollpunkt (ainult viimases etapis)
+}
+
+// Deterministlik etappidesse jaotus: kõrge prioriteet 1-30, keskmine 31-60,
+// viimane etapp on alati uuesti-skoorimise kontrollpunkt.
+export const FINAL_CHECKPOINT =
+  "Arvuta skoor uuesti värskete andmetega (Finantsvalmiduse hinnang) ja otsusta, kas laenutaotlus on valmis esitamiseks.";
+
+export function buildPlan90d(actionPlan: ActionItem[]): PlanPhase[] {
+  return [
+    { phase: "1-30", items: actionPlan.filter((a) => a.priority === "high") },
+    { phase: "31-60", items: actionPlan.filter((a) => a.priority !== "high") },
+    { phase: "61-90", items: [], checkpoint: FINAL_CHECKPOINT },
+  ];
 }
 
 export interface GeneratedDocument {
@@ -37,13 +57,15 @@ export interface GeneratedDocument {
 export function computeAnalysis(config: DocumentTypeConfig, input: Record<string, string | number>): DocumentAnalysis | undefined {
   if (!config.analysis) return undefined;
   const result = scoreVKE(input);
+  const action_plan = generateVKEActionPlan(result);
   return {
     score: result.score,
     risk_level: result.risk_level,
     strengths: result.strengths,
     weaknesses: result.weaknesses,
     breakdown: result.breakdown,
-    action_plan: generateVKEActionPlan(result),
+    action_plan,
+    plan_90d: buildPlan90d(action_plan),
   };
 }
 
