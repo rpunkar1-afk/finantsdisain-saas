@@ -5,6 +5,8 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { getDocumentType, type DocumentTypeConfig } from "./registry";
+import { scoreVKE, type ScoringResult } from "../scoring";
+import { generateVKEActionPlan, type ActionItem } from "../opportunities";
 
 export interface GeneratedSection {
   id: string;
@@ -12,12 +14,37 @@ export interface GeneratedSection {
   narrative: string;
 }
 
+// Deterministlik analüüs (skoorimootor + tegevuskava), arvutatud enne narratiivi kirjutamist.
+// Claude ei arvuta neid numbreid ise, ta ainult selgitab neid.
+export interface DocumentAnalysis {
+  score: number;
+  risk_level: ScoringResult["risk_level"];
+  strengths: string[];
+  weaknesses: string[];
+  breakdown: ScoringResult["breakdown"];
+  action_plan: ActionItem[];
+}
+
 export interface GeneratedDocument {
   document_id: string;
   type_id: string;
   generated_at: string; // ISO 8601
   input: Record<string, string | number>;
+  analysis?: DocumentAnalysis;
   sections: GeneratedSection[];
+}
+
+export function computeAnalysis(config: DocumentTypeConfig, input: Record<string, string | number>): DocumentAnalysis | undefined {
+  if (!config.analysis) return undefined;
+  const result = scoreVKE(input);
+  return {
+    score: result.score,
+    risk_level: result.risk_level,
+    strengths: result.strengths,
+    weaknesses: result.weaknesses,
+    breakdown: result.breakdown,
+    action_plan: generateVKEActionPlan(result),
+  };
 }
 
 const DOCUMENT_SYSTEM_PROMPT = `Sa oled P.E.E.T.E.R. — Finantsdisain AI finants- ja äristrateegia analüütik.
@@ -26,6 +53,7 @@ Sinu ülesanne on kirjutada üks dokumendi sektsioon, lähtudes sulle antud stru
 Reeglid:
 - Kirjuta eesti keeles, professionaalses, otsekoheses toonis. Ei liigset entusiasmi, ei ebamäärasust.
 - Kasuta AINULT sulle antud andmeid. Ära leiuta fakte, numbreid ega soovitusi, mida andmetes pole.
+- Kui andmetes on "analysis" (skoor, riskitase, breakdown, tegevuskava), on need deterministlikult arvutatud: kasuta neid täpselt nii nagu antud, ära arvuta ega ümardada ümber.
 - Kui mõni vajalik andmepunkt on puudu, ütle seda otse ("andmed puuduvad"), ära oleta.
 - Pikkus: 3-6 lauset, v.a kui juhend ütleb teisiti.
 - Ära korda pealkirja tekstis.
@@ -35,7 +63,7 @@ async function generateSectionText(
   anthropic: Anthropic,
   heading: string,
   instruction: string,
-  input: Record<string, string | number>,
+  data: unknown,
 ): Promise<string> {
   const message = await anthropic.messages.create({
     model: "claude-sonnet-4-6",
@@ -44,7 +72,7 @@ async function generateSectionText(
     messages: [
       {
         role: "user",
-        content: `Sektsioon: ${heading}\n\nJuhend: ${instruction}\n\nAndmed:\n${JSON.stringify(input, null, 2)}`,
+        content: `Sektsioon: ${heading}\n\nJuhend: ${instruction}\n\nAndmed:\n${JSON.stringify(data, null, 2)}`,
       },
     ],
   });
@@ -70,11 +98,14 @@ export async function generateDocument(
 
   const anthropic = client ?? new Anthropic({ apiKey });
 
+  const analysis = computeAnalysis(config, input);
+  const promptData = analysis ? { input, analysis } : input;
+
   const sections: GeneratedSection[] = await Promise.all(
     config.sections.map(async (s) => ({
       id: s.id,
       heading: s.heading,
-      narrative: await generateSectionText(anthropic, s.heading, s.instruction, input),
+      narrative: await generateSectionText(anthropic, s.heading, s.instruction, promptData),
     })),
   );
 
@@ -83,6 +114,7 @@ export async function generateDocument(
     type_id: typeId,
     generated_at: new Date().toISOString(),
     input,
+    ...(analysis ? { analysis } : {}),
     sections,
   };
 }

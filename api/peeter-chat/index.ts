@@ -10,6 +10,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { getDocumentType, type DocField } from "../../lib/documents/registry";
+import { validateFieldValue } from "../../lib/documents/validate";
 import { buildMenuSystemPrompt, buildCollectionSystemPrompt } from "../../lib/peeter/prompt";
 
 export const config = {
@@ -109,6 +110,7 @@ export default async function handler(req: Request): Promise<Response> {
   // tsükkel lõpeb, kui Claude vastab tekstiga ilma tööriistata. Tööriista kõrval olev
   // tekst on tavaliselt vaid sissejuhatus ("Salvestan nime."), mitte järgmine küsimus.
   let lastText = "";
+  const rejectedFields: Record<string, string> = {};
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
     let systemPrompt: string;
     try {
@@ -151,13 +153,23 @@ export default async function handler(req: Request): Promise<Response> {
     }
 
     // Juba kinnitatud arvvälja uuesti pakkumine avaks kinnitusvormi lõputult uuesti.
+    // Välja tüüp tuleb registrist, mitte mudeli väitest.
     const alreadyCollected = (t: Anthropic.ToolUseBlock) => {
-      const input = t.input as { field_id?: string; field_type?: string };
-      return t.name === "propose_field" && input.field_type === "number" && !!input.field_id && input.field_id in collected;
+      const input = t.input as { field_id?: string };
+      return (
+        t.name === "propose_field" &&
+        !!input.field_id &&
+        input.field_id in collected &&
+        findField(result.documentTypeId, input.field_id)?.type === "number"
+      );
     };
 
-    for (const block of toolUses) {
-      if (!alreadyCollected(block)) applyToolUse(block, result);
+    // Dokumenditüüp enne välju: muidu ei leia sama ringi propose_field oma välja registrist.
+    const ordered = [...toolUses].sort(
+      (a, b) => Number(b.name === "select_document_type") - Number(a.name === "select_document_type"),
+    );
+    for (const block of ordered) {
+      if (!alreadyCollected(block)) applyToolUse(block, result, rejectedFields);
     }
 
     conversation.push(
@@ -169,7 +181,7 @@ export default async function handler(req: Request): Promise<Response> {
           tool_use_id: t.id,
           content: alreadyCollected(t)
             ? "See väli on juba kogutud ja kinnitatud. Ära küsi seda uuesti; küsi järgmist puuduvat välja."
-            : toolResultText(t, result),
+            : toolResultText(t, result, rejectedFields),
         })),
       },
     );
@@ -205,7 +217,11 @@ export default async function handler(req: Request): Promise<Response> {
   return jsonResponse(result, 200);
 }
 
-function applyToolUse(block: Anthropic.ToolUseBlock, result: ResponseBody): void {
+function findField(typeId: string | null, fieldId: string): DocField | undefined {
+  return typeId ? getDocumentType(typeId)?.fields.find((f) => f.id === fieldId) : undefined;
+}
+
+function applyToolUse(block: Anthropic.ToolUseBlock, result: ResponseBody, rejected: Record<string, string>): void {
   if (block.name === "select_document_type") {
     const input = block.input as { type_id?: string };
     if (input.type_id && getDocumentType(input.type_id)) {
@@ -215,30 +231,47 @@ function applyToolUse(block: Anthropic.ToolUseBlock, result: ResponseBody): void
     const input = block.input as { field_id?: string; value?: string; field_type?: string };
     if (!input.field_id || input.value === undefined) return;
 
-    if (input.field_type === "number") {
-      if (!result.pendingConfirmation) {
-        const typeConfig = result.documentTypeId ? getDocumentType(result.documentTypeId) : undefined;
-        const fieldDef = typeConfig?.fields.find((f) => f.id === input.field_id);
+    // Välja tüüp tuleb registrist, mitte mudeli väitest: muidu saaks number-välja
+    // ("text" väitega) mööda kinnitusvormist otse salvestada.
+    const fieldDef = findField(result.documentTypeId, input.field_id);
+    if (!fieldDef) {
+      rejected[input.field_id] = "Tundmatu väli selle dokumenditüübi jaoks.";
+      return;
+    }
+    delete rejected[input.field_id];
+
+    if (fieldDef.type === "number") {
+      const err = validateFieldValue(fieldDef, input.value);
+      if (err) {
+        rejected[input.field_id] = err;
+      } else if (!result.pendingConfirmation) {
         result.pendingConfirmation = {
           field_id: input.field_id,
-          label: fieldDef?.label ?? input.field_id,
+          label: fieldDef.label,
           value: input.value,
-          unit: fieldDef?.unit,
+          unit: fieldDef.unit,
         };
       }
+    } else if (fieldDef.type === "select") {
+      const err = validateFieldValue(fieldDef, input.value);
+      if (err) rejected[input.field_id] = err;
+      else result.fieldUpdates[input.field_id] = input.value;
     } else {
       result.fieldUpdates[input.field_id] = input.value;
     }
   }
 }
 
-function toolResultText(tool: Anthropic.ToolUseBlock, result: ResponseBody): string {
+function toolResultText(tool: Anthropic.ToolUseBlock, result: ResponseBody, rejected: Record<string, string>): string {
   if (tool.name === "select_document_type") {
     return result.documentTypeId
       ? `Valitud dokumenditüüp: ${result.documentTypeId}. Kui kasutaja on vestluses juba andnud mõne välja info, salvesta nüüd KÕIK need "propose_field" kutsetega (üks kutse välja kohta). Seejärel küsi esimest puuduvat välja.`
       : "Tundmatu dokumenditüüp. Täpsusta kasutajalt vajadust.";
   }
   const input = tool.input as { field_id?: string };
+  if (input.field_id && rejected[input.field_id]) {
+    return `Väärtust ei salvestatud: ${rejected[input.field_id]} Küsi kasutajalt uuesti ja kasuta lubatud väärtust.`;
+  }
   if (result.pendingConfirmation && result.pendingConfirmation.field_id === input.field_id) {
     return "Arvväärtus ootab kasutaja kinnitust. Palu kasutajal allolev väärtus kinnitada; ära küsi järgmist välja.";
   }

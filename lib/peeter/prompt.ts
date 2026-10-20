@@ -47,8 +47,16 @@ export function buildCollectionSystemPrompt(typeId: string, collected: Record<st
   const remaining = config.fields.filter((f) => !(f.id in collected));
   const done = config.fields.filter((f) => f.id in collected);
 
-  const fieldLine = (f: DocField) =>
-    `- ${f.id} (${f.type}${f.unit ? `, ${f.unit}` : ""})${f.required ? " [kohustuslik]" : " [valikuline]"}: ${f.label}`;
+  const fieldLine = (f: DocField) => {
+    const base = `- ${f.id} (${f.type}${f.unit ? `, ${f.unit}` : ""})${f.required ? " [kohustuslik]" : " [valikuline]"}: ${f.label}`;
+    if (f.type === "select" && f.options) {
+      return `${base}\n  Lubatud väärtused (võti = sõnastus): ${f.options.map((o) => `${o.value} = ${o.label}`).join("; ")}`;
+    }
+    if (f.type === "number" && (f.min !== undefined || f.max !== undefined)) {
+      return `${base}\n  Lubatud vahemik: ${f.min ?? "-"} kuni ${f.max ?? "-"}`;
+    }
+    return base;
+  };
 
   return `${PEETER_PERSONA}
 
@@ -67,6 +75,9 @@ REEGLID VÄLJADE SALVESTAMISEKS:
 - Kui kasutaja vastab arvväljale (type: number), kutsu "propose_field" — SEE EI SALVESTU
   automaatselt, kasutajale näidatakse kinnitusvormi. Ära arva numbrit, kui kasutaja seda otse
   ei öelnud.
+- Kui väli on type: select, paku kasutajale valikuid sõnadega (sõnastus, mitte võti) ja kutsu "propose_field"
+  väärtusega = täpselt see VÕTI, mis kasutaja valitud sõnastusele vastab. Kui vastus ei vasta selgelt ühelegi
+  valikule, küsi uuesti; ära vali ise.
 - Ära KUNAGI täida välja oma oletusega. Kui info puudub, küsi seda uuesti selgemalt.
 - Kui kõik kohustuslikud väljad on kogutud, ütle seda selgelt kasutajale ühe lausega.`;
 }

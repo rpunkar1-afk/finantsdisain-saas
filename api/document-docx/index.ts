@@ -49,6 +49,20 @@ export default async function handler(req: Request): Promise<Response> {
     );
   }
 
+  if (document.analysis) {
+    children.push(
+      new Paragraph({
+        text: `Skoor ${document.analysis.score}/100, riskitase: ${document.analysis.risk_level}`,
+        heading: HeadingLevel.HEADING_1,
+      }),
+    );
+    for (const b of document.analysis.breakdown) {
+      children.push(
+        new Paragraph({ children: [new TextRun(`${b.label}: ${b.bandLabel} (${b.points}/${b.weight} punkti)`)] }),
+      );
+    }
+  }
+
   for (const section of document.sections) {
     children.push(
       new Paragraph({
