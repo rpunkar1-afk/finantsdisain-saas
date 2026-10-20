@@ -121,3 +121,31 @@ export function normalizeStatement(raw: RawParseResult): NormalizedStatement {
     transactions,
   };
 }
+
+// Püsikulude osakaal kogukuludest väljavõtte põhjal (deterministlik).
+// Sama arvutus, mida /vke leht kasutab; väljavõtte väljaminekud = tehingud amount < 0.
+export interface CostStructureSummary {
+  ratio: number | null; // 0-1, null kui väljaminekuid pole
+  totalExpenses: number;
+  fixedCosts: number;
+  transactionCount: number;
+  periodStart: string | null;
+  periodEnd: string | null;
+}
+
+export function computeCostStructure(norm: NormalizedStatement): CostStructureSummary {
+  const expenses = norm.transactions.filter((t) => t.amount < 0);
+  const totalExpenses = expenses.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+  const fixedCosts = expenses
+    .filter((t) => t.category === "fixed_costs")
+    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+  const dates = norm.transactions.map((t) => t.date).sort();
+  return {
+    ratio: totalExpenses > 0 ? fixedCosts / totalExpenses : null,
+    totalExpenses,
+    fixedCosts,
+    transactionCount: norm.transactions.length,
+    periodStart: dates[0] ?? null,
+    periodEnd: dates[dates.length - 1] ?? null,
+  };
+}
