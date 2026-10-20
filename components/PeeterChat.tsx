@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { getDocumentType } from "../lib/documents/registry";
 import type { GeneratedDocument } from "../lib/documents/generate";
 import DocumentResult from "./DocumentResult";
+import UploadPDF from "./UploadPDF";
+import { computeCostStructure } from "../lib/normalization";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -28,6 +30,7 @@ export default function PeeterChat() {
   const [collected, setCollected] = useState<Record<string, string | number>>({});
   const [pending, setPending] = useState<PendingConfirmation | null>(null);
   const [confirmValue, setConfirmValue] = useState("");
+  const [pendingNote, setPendingNote] = useState<string | null>(null);
   const [readyToGenerate, setReadyToGenerate] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,6 +89,7 @@ export default function PeeterChat() {
       content: `[Kinnitatud: ${pending.label} = ${confirmValue}${pending.unit ? " " + pending.unit : ""}]`,
     };
     setPending(null);
+    setPendingNote(null);
     const next = [...messages, confirmMsg];
     setMessages(next);
     sendTurn(next);
@@ -94,7 +98,27 @@ export default function PeeterChat() {
   function handleReject() {
     if (!pending) return;
     setPending(null);
+    setPendingNote(null);
     setInput(`${pending.label}: `);
+  }
+
+  // Pangaväljavõte: püsikulude osakaal arvutatakse deterministlikult (lib/normalization) ja läheb
+  // kasutajale KINNITAMISEKS, nagu iga teine number. Vestlusse ajalukku midagi ei lisata.
+  function handleStatementDone(_parsed: unknown, norm: Parameters<typeof computeCostStructure>[0]) {
+    const field = config?.fields.find((f) => f.id === "cost_structure");
+    if (!field) return;
+    const summary = computeCostStructure(norm);
+    if (summary.ratio === null) {
+      setError("Väljavõttes ei leitud väljaminekuid, püsikulude osakaalu ei saa arvutada. Sisesta see käsitsi.");
+      return;
+    }
+    setPending({ field_id: field.id, label: field.label, value: summary.ratio.toFixed(2), unit: field.unit });
+    setConfirmValue(summary.ratio.toFixed(2));
+    setPendingNote(
+      `Väljavõttest (${summary.transactionCount} tehingut, ${summary.periodStart ?? "?"} – ${summary.periodEnd ?? "?"}): ` +
+        `püsikulud ${summary.fixedCosts.toFixed(2)} € kogukuludest ${summary.totalExpenses.toFixed(2)} €. ` +
+        `Kategooriad on automaatsed, kontrolli ja paranda vajadusel.`,
+    );
   }
 
   async function handleGenerate() {
@@ -183,6 +207,11 @@ export default function PeeterChat() {
             Kinnita number enne salvestamist
           </div>
           <p style={{ marginTop: 0, marginBottom: "0.6rem" }}>{pending.label}</p>
+          {pendingNote && (
+            <p className="text-soft" style={{ marginTop: 0, fontSize: "0.85rem" }}>
+              {pendingNote}
+            </p>
+          )}
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
             <input
               type="number"
@@ -213,6 +242,15 @@ export default function PeeterChat() {
           <button className="button" onClick={handleGenerate} disabled={generating}>
             {generating ? "Genereerin…" : `Genereeri ${config?.title.toLowerCase()}`}
           </button>
+        </div>
+      )}
+
+      {!pending && !readyToGenerate && config?.fields.some((f) => f.id === "cost_structure") && !("cost_structure" in collected) && (
+        <div className="card" style={{ marginTop: "0.75rem" }}>
+          <p className="text-soft" style={{ marginTop: 0, fontSize: "0.85rem" }}>
+            Valikuline: lae üles pangaväljavõte, siis arvutan püsikulude osakaalu ise (sa kinnitad selle).
+          </p>
+          <UploadPDF onComplete={handleStatementDone} />
         </div>
       )}
 

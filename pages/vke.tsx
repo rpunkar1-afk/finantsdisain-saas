@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import UploadPDF from "../components/UploadPDF";
 import ScoreCard from "../components/ScoreCard";
 import type { ParseStatementResult } from "../api/parse-statement";
-import type { NormalizedStatement } from "../lib/normalization";
+import { computeCostStructure, type NormalizedStatement } from "../lib/normalization";
 import type { ScoringResult } from "../lib/scoring";
 import type { ActionItem } from "../lib/opportunities";
 import type { GrantProgram } from "../api/grants";
@@ -58,12 +58,8 @@ export default function VKE() {
 
   function handleUploadComplete(_parsed: ParseStatementResult, norm: NormalizedStatement) {
     setNormalized(norm);
-    const expenses = norm.transactions.filter((t) => t.amount < 0);
-    const totalExpenses = expenses.reduce((s, t) => s + Math.abs(t.amount), 0);
-    const fixedCosts = expenses
-      .filter((t) => t.category === "fixed_costs")
-      .reduce((s, t) => s + Math.abs(t.amount), 0);
-    const suggestedRatio = totalExpenses > 0 ? (fixedCosts / totalExpenses).toFixed(2) : "";
+    const summary = computeCostStructure(norm);
+    const suggestedRatio = summary.ratio !== null ? summary.ratio.toFixed(2) : "";
     setForm((f) => ({ ...f, cost_structure: suggestedRatio }));
   }
 
