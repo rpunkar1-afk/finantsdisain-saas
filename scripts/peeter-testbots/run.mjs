@@ -268,6 +268,12 @@ async function runScenario(sc) {
     if (log.ready && GENERATE) {
       const doc = await postJson(`${TARGET}/api/generate-document`, { typeId: log.documentTypeId, input: log.collected });
       log.generated = doc.sections || [];
+      log.review = doc.review || null;
+      if (doc.review && doc.review.status === "warning") {
+        for (const i of doc.review.issues) {
+          log.violations.push({ turn: 0, code: `review_${i.code}`, hard: false, detail: `${i.section_id}: ${i.detail}` });
+        }
+      }
       for (const s of log.generated) {
         if (LEGAL_BOILERPLATE.test(s.narrative)) {
           log.violations.push({ turn: 0, code: "doc_legal_boilerplate", hard: false, detail: `${s.heading}: ${s.narrative.match(LEGAL_BOILERPLATE)[0]}` });

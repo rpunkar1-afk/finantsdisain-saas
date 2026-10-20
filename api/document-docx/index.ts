@@ -75,6 +75,14 @@ export default async function handler(req: Request): Promise<Response> {
     }
   }
 
+  if (document.review && document.review.status === "warning") {
+    children.push(new Paragraph({ text: "Kontrolöri märkused", heading: HeadingLevel.HEADING_1 }));
+    for (const i of document.review.issues) {
+      const heading = document.sections.find((s) => s.id === i.section_id)?.heading ?? i.section_id;
+      children.push(new Paragraph({ children: [new TextRun(`${heading}: ${i.detail}`)] }));
+    }
+  }
+
   const doc = new Document({
     sections: [{ children }],
   });
