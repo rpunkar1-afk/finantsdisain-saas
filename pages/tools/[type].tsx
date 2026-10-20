@@ -93,10 +93,25 @@ export default function ToolPage() {
                     resize: "vertical",
                   }}
                 />
+              ) : field.type === "select" ? (
+                <select
+                  id={field.id}
+                  value={values[field.id] ?? ""}
+                  onChange={(e) => setField(field.id, e.target.value)}
+                  required={field.required}
+                >
+                  <option value="">Vali...</option>
+                  {(field.options ?? []).map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
               ) : (
                 <input
                   id={field.id}
                   type={field.type === "number" ? "number" : "text"}
+                  step={field.type === "number" ? "any" : undefined}
                   placeholder={field.placeholder}
                   value={values[field.id] ?? field.defaultValue ?? ""}
                   onChange={(e) => setField(field.id, e.target.value)}

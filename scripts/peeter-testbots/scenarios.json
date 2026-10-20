@@ -42,7 +42,9 @@
       "opening_balance": 8000,
       "monthly_inflow": 14000
     },
-    "must_not_invent": ["monthly_outflow"]
+    "must_not_invent": [
+      "monthly_outflow"
+    ]
   },
   {
     "id": "ky-ebaselge",
@@ -94,5 +96,27 @@
       "opportunities": "Biomassi nõudlus kasvab.",
       "threats": "Kütusehinna kõikumine ja ilmastik."
     }
+  },
+  {
+    "id": "vke-hinnang-select-valikud",
+    "title": "VKE: finantsvalmiduse hinnang (numbrid + valikväljad)",
+    "expected_type": "finantsvalmiduse-hinnang",
+    "expect_complete": true,
+    "opening": "Tahan teada, kui valmis mu firma on laenu taotlema. Vajan hinnangut.",
+    "persona": "Ehitusfirma omanik Toomas. Vastab lühidalt. Valikuküsimustele vastab oma sõnadega (nt 'firma on 5 aastat vana', 'raamatupidamine korras, viiviseid pole'), mitte võtmetega. Numbreid ütleb täpselt faktilehe järgi. Käibe kohta ütleb: 'käive on stabiilne, kõikumine alla 15 protsendi, aga kasvu ei ole'.",
+    "facts": {
+      "company_name": "Toomase Ehitus OÜ",
+      "dscr": 1.5,
+      "cost_structure": 0.45,
+      "tax_debt": 0,
+      "revenue_stability": "cv_low_trend_flat",
+      "company_age": "3y_plus",
+      "accounting_quality": "consistent_no_arrears"
+    },
+    "select_fields": [
+      "revenue_stability",
+      "company_age",
+      "accounting_quality"
+    ]
   }
 ]

@@ -6,8 +6,13 @@
 // SWOT, KPI raport) -> docx; finantsmudelid (finantsprognoos, rahavoo mudel) ->
 // xlsx päris valemitega; lõplik allkirjastatav pakett (investoripitch) -> pdf.
 
-export type FieldType = "text" | "textarea" | "number";
+export type FieldType = "text" | "textarea" | "number" | "select";
 export type OutputFormat = "docx" | "xlsx" | "pdf";
+
+export interface SelectOption {
+  value: string; // võti, mis salvestatakse (nt skoorimootori kategooria võti)
+  label: string; // inimloetav sõnastus, mida kasutajale näidatakse
+}
 
 export interface DocField {
   id: string;
@@ -17,6 +22,16 @@ export interface DocField {
   unit?: string;
   placeholder?: string;
   defaultValue?: string;
+  options?: SelectOption[]; // kohustuslik, kui type === "select"
+  min?: number; // number-väljade lubatud alampiir (kaasa arvatud)
+  max?: number; // number-väljade lubatud ülempiir (kaasa arvatud)
+}
+
+// Kui dokumenditüübil on "analysis", arvutab generaator enne narratiivi kirjutamist
+// deterministliku analüüsi (skoor, riskitase, tugevused/nõrkused, tegevuskava)
+// skoorimootori reeglitest. Väljade id-d peavad vastama skoorireeglite id-dele.
+export interface DocAnalysisConfig {
+  segment: "vke";
 }
 
 export interface DocSection {
@@ -33,6 +48,7 @@ export interface DocumentTypeConfig {
   outputFormat: OutputFormat;
   fields: DocField[];
   sections: DocSection[];
+  analysis?: DocAnalysisConfig;
 }
 
 export const DOCUMENT_TYPES: DocumentTypeConfig[] = [
@@ -152,6 +168,63 @@ export const DOCUMENT_TYPES: DocumentTypeConfig[] = [
       { id: "market_model", heading: "Turg ja ärimudel", instruction: "Selgita turu suurust ja ärimudelit antud sisendi põhjal." },
       { id: "traction", heading: "Traktsioon", instruction: "Kirjelda senist traktsiooni, kui see on antud; kui pole, ütle selgelt, et ettevõte on varajases faasis." },
       { id: "ask", heading: "Investeeringu küsimus", instruction: "Selgita küsitava investeeringu suurust ja mida see võimaldab saavutada." },
+    ],
+  },
+  {
+    id: "finantsvalmiduse-hinnang",
+    title: "Finantsvalmiduse hinnang",
+    description: "Laenuvalmiduse skoor (0-100), riskitase, tugevused, nõrkused ja tegevuskava reeglipõhise analüüsi alusel.",
+    audience: "VKE",
+    outputFormat: "docx",
+    analysis: { segment: "vke" },
+    fields: [
+      { id: "company_name", label: "Ettevõtte nimi", type: "text", required: true },
+      { id: "dscr", label: "DSCR (võlateenindamise kattekordaja)", type: "number", unit: "x", required: true, min: 0, max: 50, placeholder: "nt 1.4" },
+      { id: "cost_structure", label: "Püsikulude osakaal kogukuludest", type: "number", unit: "0-1", required: true, min: 0, max: 1, placeholder: "nt 0.45" },
+      { id: "tax_debt", label: "Maksuvõlg", type: "number", unit: "€", required: true, min: 0 },
+      {
+        id: "revenue_stability",
+        label: "Käibe stabiilsus",
+        type: "select",
+        required: true,
+        options: [
+          { value: "cv_low_trend_up", label: "Väga stabiilne ja kasvav (kõikumine alla 15%, trend positiivne)" },
+          { value: "cv_low_trend_flat", label: "Stabiilne, kuid ei kasva (kõikumine alla 15%), või mõõdukalt kõikuv (15-30%) ja kasvav" },
+          { value: "cv_mid_trend_flat", label: "Mõõdukalt kõikuv (15-30%) ja ei kasva, või väga kõikuv (üle 30%) ja kasvav" },
+          { value: "cv_high_trend_down", label: "Väga kõikuv (üle 30%) ja langev" },
+        ],
+      },
+      {
+        id: "company_age",
+        label: "Ettevõtte vanus",
+        type: "select",
+        required: true,
+        options: [
+          { value: "3y_plus", label: "3 aastat või rohkem" },
+          { value: "1y_3y", label: "1-3 aastat" },
+          { value: "6m_12m", label: "6-12 kuud" },
+          { value: "0m_6m", label: "0-6 kuud" },
+        ],
+      },
+      {
+        id: "accounting_quality",
+        label: "Raamatupidamise kvaliteet",
+        type: "select",
+        required: true,
+        options: [
+          { value: "consistent_no_arrears", label: "Järjepidev, viivisteta" },
+          { value: "consistent_minor_arrears", label: "Järjepidev, väiksed viivised" },
+          { value: "inconsistent_no_arrears", label: "Ebajärjepidev, viivisteta" },
+          { value: "inconsistent_with_arrears", label: "Ebajärjepidev, viivistega" },
+        ],
+      },
+    ],
+    sections: [
+      { id: "summary", heading: "Kokkuvõte", instruction: "Kokkuvõte koondskoorist ja riskitasemest. Kasuta täpselt analysis.score ja analysis.risk_level väärtusi; ära arvuta skoori ise." },
+      { id: "criteria", heading: "Skoor kriteeriumite lõikes", instruction: "Selgita, kuidas koondskoor kriteeriumite lõikes tekkis, lähtudes analysis.breakdown andmetest (punktid ja kaal iga kriteeriumi kohta)." },
+      { id: "strengths", heading: "Tugevused", instruction: "Too välja tugevused analysis.strengths põhjal. Kui tugevusi pole, ütle seda otse." },
+      { id: "weaknesses", heading: "Nõrkused ja riskid", instruction: "Too välja nõrkused ja riskid analysis.weaknesses põhjal. Kui nõrkusi pole, ütle seda otse." },
+      { id: "actions", heading: "Tegevuskava", instruction: "Kokkuvõta tegevused analysis.action_plan põhjal prioriteedi järgi (high enne medium). Ära lisa tegevusi, mida plaanis pole." },
     ],
   },
   {

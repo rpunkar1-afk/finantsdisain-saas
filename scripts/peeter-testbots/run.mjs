@@ -211,6 +211,10 @@ async function runScenario(sc) {
       for (const [k, val] of Object.entries(res.fieldUpdates || {})) {
         if (mustNotInvent.has(k) || (sc.facts[k] === undefined && Object.keys(sc.facts).length > 0)) {
           log.violations.push({ turn: turnNo, code: "invented_field", hard: true, detail: `${k} = ${JSON.stringify(val)} (kasutaja seda ei andnud)` });
+        } else if ((sc.select_fields || []).includes(k)) {
+          if (val !== sc.facts[k]) {
+            log.violations.push({ turn: turnNo, code: "wrong_select", hard: true, detail: `${k}: Peeter salvestas ${JSON.stringify(val)}, kasutaja valik vastab võtmele ${JSON.stringify(sc.facts[k])}` });
+          }
         } else if (!textFromUser(val, userTextLower)) {
           log.violations.push({ turn: turnNo, code: "text_field_not_from_user", hard: false, detail: `${k} = ${JSON.stringify(val)}` });
         }

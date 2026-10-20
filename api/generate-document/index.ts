@@ -7,6 +7,7 @@
 
 import { generateDocument, type GeneratedDocument } from "../../lib/documents/generate";
 import { getDocumentType } from "../../lib/documents/registry";
+import { validateDocumentInput } from "../../lib/documents/validate";
 import { getStore } from "@netlify/blobs";
 import { randomUUID } from "crypto";
 
@@ -41,6 +42,12 @@ export default async function handler(req: Request): Promise<Response> {
   }
   if (!body.input || typeof body.input !== "object") {
     return jsonResponse({ error: "'input' peab olema objekt" }, 400);
+  }
+
+  const typeConfig = getDocumentType(body.typeId)!;
+  const validationErrors = validateDocumentInput(typeConfig, body.input);
+  if (validationErrors.length > 0) {
+    return jsonResponse({ error: "Sisend ei kehti", errors: validationErrors }, 422);
   }
 
   try {
