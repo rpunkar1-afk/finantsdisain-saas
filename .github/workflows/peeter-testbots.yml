@@ -1,0 +1,51 @@
+name: Peeter testbotid
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: "Testitav aadress"
+        required: false
+        default: "https://financedesign.ai"
+      scenario:
+        description: "Ainult see stsenaarium (id). Tühi = kõik."
+        required: false
+        default: ""
+      generate:
+        description: "Genereeri dokument (1 = jah, 0 = ei)"
+        required: false
+        default: "1"
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  testbots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run testbots
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TARGET_URL: ${{ github.event.inputs.target_url || 'https://financedesign.ai' }}
+          SCENARIO: ${{ github.event.inputs.scenario || '' }}
+          GENERATE: ${{ github.event.inputs.generate || '1' }}
+        run: node scripts/peeter-testbots/run.mjs
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: peeter-testbots-report
+          path: scripts/peeter-testbots/results/
+          if-no-files-found: ignore
