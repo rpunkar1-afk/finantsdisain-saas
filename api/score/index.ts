@@ -23,7 +23,7 @@ export default async function handler(req: Request): Promise<Response> {
   try {
     body = (await req.json()) as ScoreRequestBody;
   } catch (err) {
-    return jsonResponse({ error: "Vigane JSON sisend", detail: String(err) }, 400);
+    return jsonResponse({ error: "Vigane JSON sisend" }, 400);
   }
 
   if (!body.segment || !["vke", "ky"].includes(body.segment)) {
@@ -37,7 +37,7 @@ export default async function handler(req: Request): Promise<Response> {
     const result = body.segment === "vke" ? scoreVKE(body.input) : scoreKY(body.input);
     return jsonResponse(result, 200);
   } catch (err) {
-    return jsonResponse({ error: "Skoorimine ebaõnnestus", detail: String(err) }, 422);
+    return jsonResponse({ error: "Skoorimine ebaõnnestus" }, 422);
   }
 }
 

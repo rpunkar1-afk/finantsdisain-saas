@@ -81,7 +81,7 @@ export default async function handler(req: Request): Promise<Response> {
   try {
     body = await req.json();
   } catch (err) {
-    return jsonResponse({ error: "Vigane JSON sisend", detail: String(err) }, 400);
+    return jsonResponse({ error: "Vigane JSON sisend" }, 400);
   }
 
   if (!Array.isArray(body.messages) || body.messages.length === 0) {
@@ -143,7 +143,7 @@ export default async function handler(req: Request): Promise<Response> {
       });
     } catch (err) {
       if (round === 0) {
-        return jsonResponse({ error: "Claude API kutse ebaõnnestus", detail: String(err) }, 502);
+        return jsonResponse({ error: "Claude API kutse ebaõnnestus" }, 502);
       }
       console.error("Peetri järelkutse ebaõnnestus:", err);
       break;

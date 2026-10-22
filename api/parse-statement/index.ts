@@ -85,7 +85,7 @@ export default async function handler(req: Request): Promise<Response> {
       }
       return jsonResponse({ text: data }, 200);
     } catch (err) {
-      return jsonResponse({ error: "Teksti taastamine ebaõnnestus", detail: String(err) }, 500);
+      return jsonResponse({ error: "Teksti taastamine ebaõnnestus" }, 500);
     }
   }
 
@@ -105,7 +105,7 @@ export default async function handler(req: Request): Promise<Response> {
   try {
     body = (await req.json()) as ParseStatementRequestBody;
   } catch (err) {
-    return jsonResponse({ error: "Vigane JSON sisend", detail: String(err) }, 400);
+    return jsonResponse({ error: "Vigane JSON sisend" }, 400);
   }
 
   const rawText = body.text;
@@ -158,7 +158,7 @@ export default async function handler(req: Request): Promise<Response> {
     result.statement_blob_id = statementBlobId;
   } catch (err) {
     return jsonResponse(
-      { error: "Struktureeritud andmete ekstraheerimine ebaõnnestus", detail: String(err) },
+      { error: "Struktureeritud andmete ekstraheerimine ebaõnnestus" },
       502,
     );
   }

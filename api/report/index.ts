@@ -26,7 +26,7 @@ export default async function handler(req: Request): Promise<Response> {
       }
       return jsonResponse(data, 200);
     } catch (err) {
-      return jsonResponse({ error: "Raporti taastamine ebaõnnestus", detail: String(err) }, 500);
+      return jsonResponse({ error: "Raporti taastamine ebaõnnestus" }, 500);
     }
   }
 
@@ -43,7 +43,7 @@ export default async function handler(req: Request): Promise<Response> {
   try {
     input = (await req.json()) as ReportInput;
   } catch (err) {
-    return jsonResponse({ error: "Vigane JSON sisend", detail: String(err) }, 400);
+    return jsonResponse({ error: "Vigane JSON sisend" }, 400);
   }
 
   if (!input.profile || !input.scoringResult || !Array.isArray(input.matchedGrants)) {
@@ -69,7 +69,7 @@ export default async function handler(req: Request): Promise<Response> {
 
     return jsonResponse(report, 200);
   } catch (err) {
-    return jsonResponse({ error: "Raporti genereerimine ebaõnnestus", detail: String(err) }, 502);
+    return jsonResponse({ error: "Raporti genereerimine ebaõnnestus" }, 502);
   }
 }
 
