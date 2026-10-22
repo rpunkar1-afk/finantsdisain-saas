@@ -32,6 +32,29 @@ if (!ANTHROPIC_API_KEY) {
 const today = new Date().toISOString().slice(0, 10);
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
 
+// Kasutaja otsusel eemaldatud/blokeeritud allikad - ei tohi avastamisel uuesti ilmuda.
+const BLOCKED_URL_PATTERNS = [
+  /maapiirkonna-ettevotjate-konkurentsivoime-suurendamise-investeeringutoetus-2026/,
+];
+
+// Pealkirjad, mis viitavad meetmele, kus taotleda saavad ainult avaliku sektori asutused (KOV, keskvalitsus).
+const PUBLIC_SECTOR_TITLE = /(kohaliku omavalitsuse|kohalike omavalitsuse|keskvalitsuse|avaliku sektori|KOV[ -])/i;
+
+function urlSlug(u) {
+  return u.split('?')[0].split('#')[0].split('/').filter(Boolean).pop() || u;
+}
+
+// Staatus tuletatakse kuupäevadest (mitte LLM-ilt). Kui LLM ütleb selgelt "closed"
+// (nt eelarve ammendunud), siis jääb closed.
+function computeStatus(opens, closes, llmStatus) {
+  const isDate = (d) => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d);
+  if (isDate(closes) && closes < today) return 'closed';
+  if (llmStatus === 'closed') return 'closed';
+  if (isDate(opens) && opens > today) return 'upcoming';
+  if (isDate(opens) || isDate(closes)) return 'open';
+  return llmStatus || 'open';
+}
+
 // ---------- Abifunktsioonid: brauseri kaudu laadimine ----------
 
 async function withBrowser(fn) {
@@ -328,7 +351,7 @@ function extractJson(text) {
 }
 
 async function classifyCandidates(source, candidates, existingUrls) {
-  const fresh = candidates.filter((c) => !existingUrls.has(c.url));
+  const fresh = candidates.filter((c) => !existingUrls.has(c.url) && !BLOCKED_URL_PATTERNS.some((p) => p.test(c.url)) && !PUBLIC_SECTOR_TITLE.test(c.title));
   if (fresh.length === 0) return [];
 
   const listing = fresh
@@ -340,7 +363,7 @@ Eesmärk: leida meetmed, mis on TÕENÄOLISELT asjakohased kas
 (a) Eesti väikese/keskmise ettevõtte (VKE) jaoks (nt käibevahend, seadmed, ekspordi arendus, tootearendus, energiatõhusus ettevõttele, digitaliseerimine) või
 (b) Eesti korteriühistu (KÜ) jaoks (nt hoone renoveerimine, energiatõhusus, kortermaja rekonstrueerimine, küttesüsteemid, elamufondi toetused).
 
-EI HUVITA: teadusasutuste/ülikoolide toetused, riigiasutuste/KOV-i haldustoetused, põllumajandustootja-spetsiifilised toetused (v.a kui sõnaselgelt puudutab ka väikeettevõtjat üldiselt, mitte ainult põllumajandussektorit), kalandus- ja vesiviljelussektori-spetsiifilised toetused (kalalaevad, kalapüügiluba, vesiviljeluskasvandused, kalatöötlemine), muud kitsalt ühe tegevusloa/tegevusala taha piiratud niši-sektori toetused (nt laevandus, mäetööstus), suured EL-i teadus-konsortsiumi hanked, eraisiku (mitte-ettevõtja, mitte-KÜ) toetused, sotsiaaltoetused. Kui toetuse taotlejaks saab olla IGA ettevõtja mistahes tegevusalal, on see asjakohane; kui taotlejaks saab olla vaid ühe kindla sektori tegevusloaga ettevõtja, on see EI HUVITA.
+EI HUVITA: meetmed, mille taotlejaks saab olla ainult kohaliku omavalitsuse üksus, keskvalitsuse asutus, riigiasutus või muu avaliku sektori asutus (nt KOV-i hoonete, keskvalitsuse hoonete või kultuuriväärtustega avalike hoonete energiatõhususe meetmed), teadusasutuste/ülikoolide toetused, riigiasutuste/KOV-i haldustoetused, põllumajandustootja-spetsiifilised toetused (v.a kui sõnaselgelt puudutab ka väikeettevõtjat üldiselt, mitte ainult põllumajandussektorit), kalandus- ja vesiviljelussektori-spetsiifilised toetused (kalalaevad, kalapüügiluba, vesiviljeluskasvandused, kalatöötlemine), muud kitsalt ühe tegevusloa/tegevusala taha piiratud niši-sektori toetused (nt laevandus, mäetööstus), suured EL-i teadus-konsortsiumi hanked, eraisiku (mitte-ettevõtja, mitte-KÜ) toetused, sotsiaaltoetused. Kui toetuse taotlejaks saab olla IGA ettevõtja mistahes tegevusalal, on see asjakohane; kui taotlejaks saab olla vaid ühe kindla sektori tegevusloaga ettevõtja, on see EI HUVITA.
 
 Nimekiri (indeks. "pealkiri" -> URL):
 ${listing}
@@ -411,7 +434,8 @@ Väljasta AINULT JSON objekt (ilma markdown-koodiplokita), täpselt selle strukt
   "requirements": ["<nõue1>", "<nõue2>"],
   "description": "<1-2 lauset eesti keeles>",
   "source_url": "${candidate.url}",
-  "last_verified": "${today}"
+  "last_verified": "${today}",
+"applicant_only_public_sector": <true kui taotleda saavad AINULT kohaliku omavalitsuse üksused, keskvalitsuse- või riigiasutused või muud avaliku sektori asutused, muidu false>
 }
 
 Kui mõni väli pole lehelt tuvastatav, kasuta null (numbrite/kuupäevade puhul) või tühja stringi/massiivi. ÄRA VÄLJAMÕTLE andmeid.
@@ -426,7 +450,13 @@ max_amount_eur peab olema toetuse maksimaalne summa TÄISELT EURODES (mitte tuha
   }
   const parsed = extractJson(raw);
   if (!parsed || !parsed.name) return null;
-  if (!parsed.id) parsed.id = slugify(candidate.source + '-' + parsed.name);
+  if (parsed.applicant_only_public_sector === true) {
+    console.log('  Jäetud välja (taotleda saavad ainult avaliku sektori asutused): ' + candidate.url);
+    return null;
+  }
+  delete parsed.applicant_only_public_sector;
+  parsed.id = slugify(candidate.source + '-' + urlSlug(candidate.url));
+  parsed.status = computeStatus(parsed.round_opens, parsed.round_closes, parsed.status);
   parsed.source_url = candidate.url;
   parsed.last_verified = today;
   return parsed;
@@ -438,6 +468,18 @@ async function main() {
   const existingRaw = await fs.readFile(DATA_PATH, 'utf-8');
   const existing = JSON.parse(existingRaw);
   const existingUrls = new Set(existing.map((g) => g.source_url));
+  let previouslyDiscovered = [];
+  try {
+    const prevRaw = await fs.readFile(DISCOVERED_PATH, 'utf-8');
+    const prevParsed = JSON.parse(prevRaw);
+    if (Array.isArray(prevParsed)) previouslyDiscovered = prevParsed;
+  } catch {
+    previouslyDiscovered = [];
+  }
+  for (const d of previouslyDiscovered) {
+    if (d && d.source_url) existingUrls.add(d.source_url);
+  }
+  console.log('Varem avastatud kirjeid: ' + previouslyDiscovered.length + ' (neid ei kirjutata ümber)');
 
   const enumerators = [
     { name: 'EIS', fn: enumerateEis },
@@ -489,7 +531,19 @@ async function main() {
     });
   }
 
-  await fs.writeFile(DISCOVERED_PATH, JSON.stringify(discovered, null, 2) + '\n', 'utf-8');
+  const usedIds = new Set(previouslyDiscovered.map((d) => d.id));
+  for (const d of discovered) {
+    let id = d.id;
+    let n = 2;
+    while (usedIds.has(id)) {
+      id = d.id + '-' + n;
+      n += 1;
+    }
+    d.id = id;
+    usedIds.add(id);
+  }
+  const merged = [...previouslyDiscovered, ...discovered];
+  await fs.writeFile(DISCOVERED_PATH, JSON.stringify(merged, null, 2) + '\n', 'utf-8');
   console.log('\nKirjutatud ' + discovered.length + ' uut kandidaati faili ' + DISCOVERED_PATH);
 
   const hasCandidates = discovered.length > 0;
