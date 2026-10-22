@@ -35,6 +35,7 @@ const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 // Kasutaja otsusel eemaldatud/blokeeritud allikad - ei tohi avastamisel uuesti ilmuda.
 const BLOCKED_URL_PATTERNS = [
   /maapiirkonna-ettevotjate-konkurentsivoime-suurendamise-investeeringutoetus-2026/,
+  /nullheitega-soidukite-ostutoetus/,
 ];
 
 // Pealkirjad, mis viitavad meetmele, kus taotleda saavad ainult avaliku sektori asutused (KOV, keskvalitsus).
